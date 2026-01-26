@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  # Databases
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: mandi_ear
+      POSTGRES_USER: mandi_user
+      POSTGRES_PASSWORD: mandi_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  mongodb:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mandi_user
+      MONGO_INITDB_ROOT_PASSWORD: mandi_pass
+      MONGO_INITDB_DATABASE: mandi_ear
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  influxdb:
+    image: influxdb:2.7
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: mandi_user
+      DOCKER_INFLUXDB_INIT_PASSWORD: mandi_pass
+      DOCKER_INFLUXDB_INIT_ORG: mandi-ear
+      DOCKER_INFLUXDB_INIT_BUCKET: market-data
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./services/api-gateway:/app
+
+  # Core Services
+  ambient-ai-service:
+    build:
+      context: ./services/ambient-ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - postgres
+      - redis
+      - influxdb
+    volumes:
+      - ./services/ambient-ai-service:/app
+
+  voice-processing-service:
+    build:
+      context: ./services/voice-processing-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    volumes:
+      - ./services/voice-processing-service:/app
+
+  price-discovery-service:
+    build:
+      context: ./services/price-discovery-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - INFLUXDB_URL=http://influxdb:8086
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - influxdb
+      - redis
+    volumes:
+      - ./services/price-discovery-service:/app
+
+  user-management-service:
+    build:
+      context: ./services/user-management-service
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./services/user-management-service:/app
+
+  msp-enforcement-service:
+    build:
+      context: ./services/msp-enforcement-service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - postgres
+      - redis
+      - influxdb
+    volumes:
+      - ./services/msp-enforcement-service:/app
+
+  benchmarking-service:
+    build:
+      context: ./services/benchmarking-service
+      dockerfile: Dockerfile
+    ports:
+      - "8009:8009"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - influxdb
+    volumes:
+      - ./services/benchmarking-service:/app
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  influxdb_data:

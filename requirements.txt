@@ -1,0 +1,49 @@
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database Drivers
+psycopg2-binary==2.9.9
+pymongo==4.6.0
+redis==5.0.1
+influxdb-client==1.39.0
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# HTTP Client
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Data Processing
+pandas==2.1.4
+numpy==1.25.2
+
+# Voice Processing
+speechrecognition==3.10.0
+pydub==0.25.1
+langdetect==1.0.9
+librosa==0.10.1
+soundfile==0.12.1
+webrtcvad==2.0.10
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+hypothesis==6.92.1
+httpx==0.25.2
+
+# Development
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Logging
+structlog==23.2.0
+
+# Environment
+python-dotenv==1.0.0
