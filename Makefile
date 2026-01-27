@@ -26,6 +26,23 @@ test: ## Run tests
 test-property: ## Run property-based tests only
 	python -m pytest tests/ -v -m property
 
+test-integration: ## Run integration tests
+	python run_integration_tests.py -v
+
+test-integration-full: ## Run full integration tests including performance
+	python run_integration_tests.py -v --performance --slow
+
+test-performance: ## Run performance tests only
+	python -m pytest tests/test_performance_load.py -v
+
+test-all: ## Run all tests (unit, property, integration)
+	python -m pytest tests/ -v
+	python run_integration_tests.py -v
+
+validate-flows: ## Validate end-to-end data flows
+	@echo "Validating data flows..."
+	@curl -s -X POST http://localhost:8000/health/validate-flows | python -m json.tool || echo "Flow validation failed"
+
 clean: ## Clean up containers and volumes
 	docker-compose down -v
 	docker system prune -f
@@ -43,6 +60,10 @@ dev-setup: ## Initial development setup
 health: ## Check service health
 	@echo "Checking service health..."
 	@curl -s http://localhost:8000/health | python -m json.tool || echo "API Gateway not responding"
+
+health-detailed: ## Check detailed service health
+	@echo "Checking detailed service health..."
+	@curl -s http://localhost:8000/health/services | python -m json.tool || echo "Service health check failed"
 
 api-docs: ## Open API documentation
 	@echo "Opening API documentation at http://localhost:8000/docs"

@@ -150,7 +150,7 @@ services:
       context: ./services/benchmarking-service
       dockerfile: Dockerfile
     ports:
-      - "8009:8009"
+      - "8009:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
@@ -164,8 +164,135 @@ services:
     volumes:
       - ./services/benchmarking-service:/app
 
+  negotiation-intelligence-service:
+    build:
+      context: ./services/negotiation-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - influxdb
+    volumes:
+      - ./services/negotiation-intelligence-service:/app
+
+  crop-planning-service:
+    build:
+      context: ./services/crop-planning-service
+      dockerfile: Dockerfile
+    ports:
+      - "8007:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - influxdb
+    volumes:
+      - ./services/crop-planning-service:/app
+
+  anti-hoarding-service:
+    build:
+      context: ./services/anti-hoarding-service
+      dockerfile: Dockerfile
+    ports:
+      - "8008:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+    depends_on:
+      - postgres
+      - redis
+      - influxdb
+    volumes:
+      - ./services/anti-hoarding-service:/app
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./services/notification-service:/app
+
+  accessibility-service:
+    build:
+      context: ./services/accessibility-service
+      dockerfile: Dockerfile
+    ports:
+      - "8011:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./services/accessibility-service:/app
+
+  offline-cache-service:
+    build:
+      context: ./services/offline-cache-service
+      dockerfile: Dockerfile
+    ports:
+      - "8012:8000"
+    environment:
+      - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
+      - REDIS_URL=redis://redis:6379
+      - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
+    depends_on:
+      - postgres
+      - redis
+      - mongodb
+    volumes:
+      - ./services/offline-cache-service:/app
+
+  # Service Discovery and Health Monitoring
+  consul:
+    image: consul:1.15
+    ports:
+      - "8500:8500"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    command: agent -server -bootstrap -ui -client=0.0.0.0
+    volumes:
+      - consul_data:/consul/data
+
+  # Load Balancer
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   mongodb_data:
   redis_data:
   influxdb_data:
+  consul_data:

@@ -25,7 +25,19 @@ class Settings(BaseSettings):
     AMBIENT_AI_SERVICE_URL: str = "http://ambient-ai-service:8000"
     VOICE_PROCESSING_SERVICE_URL: str = "http://voice-processing-service:8000"
     PRICE_DISCOVERY_SERVICE_URL: str = "http://price-discovery-service:8000"
+    NEGOTIATION_SERVICE_URL: str = "http://negotiation-intelligence-service:8000"
+    CROP_PLANNING_SERVICE_URL: str = "http://crop-planning-service:8000"
+    MSP_SERVICE_URL: str = "http://msp-enforcement-service:8000"
+    ANTI_HOARDING_SERVICE_URL: str = "http://anti-hoarding-service:8000"
     USER_MANAGEMENT_SERVICE_URL: str = "http://user-management-service:8000"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8000"
+    BENCHMARKING_SERVICE_URL: str = "http://benchmarking-service:8000"
+    ACCESSIBILITY_SERVICE_URL: str = "http://accessibility-service:8000"
+    OFFLINE_CACHE_SERVICE_URL: str = "http://offline-cache-service:8000"
+    
+    # Rate Limiting
+    RATE_LIMIT_PER_MINUTE: int = 60
+    RATE_LIMIT_BURST: int = 10
     
     # Environment
     ENVIRONMENT: str = "development"
