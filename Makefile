@@ -12,7 +12,7 @@ install: ## Install Python dependencies
 
 start: ## Start all services
 	docker-compose up -d
-	@echo "Services starting... API available at http://localhost:8000"
+	@echo "Services starting... API available at http://localhost:8080"
 
 stop: ## Stop all services
 	docker-compose down
@@ -41,7 +41,7 @@ test-all: ## Run all tests (unit, property, integration)
 
 validate-flows: ## Validate end-to-end data flows
 	@echo "Validating data flows..."
-	@curl -s -X POST http://localhost:8000/health/validate-flows | python -m json.tool || echo "Flow validation failed"
+	@curl -s -X POST http://localhost:8080/health/validate-flows | python -m json.tool || echo "Flow validation failed"
 
 clean: ## Clean up containers and volumes
 	docker-compose down -v
@@ -59,11 +59,11 @@ dev-setup: ## Initial development setup
 
 health: ## Check service health
 	@echo "Checking service health..."
-	@curl -s http://localhost:8000/health | python -m json.tool || echo "API Gateway not responding"
+	@curl -s http://localhost:8080/health | python -m json.tool || echo "API Gateway not responding"
 
 health-detailed: ## Check detailed service health
 	@echo "Checking detailed service health..."
-	@curl -s http://localhost:8000/health/services | python -m json.tool || echo "Service health check failed"
+	@curl -s http://localhost:8080/health/services | python -m json.tool || echo "Service health check failed"
 
 api-docs: ## Open API documentation
 	@echo "Opening API documentation at http://localhost:8000/docs"

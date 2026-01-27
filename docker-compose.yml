@@ -51,7 +51,7 @@ services:
       context: ./services/api-gateway
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8080:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -67,7 +67,7 @@ services:
       context: ./services/ambient-ai-service
       dockerfile: Dockerfile
     ports:
-      - "8001:8000"
+      - "8081:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -84,7 +84,7 @@ services:
       context: ./services/voice-processing-service
       dockerfile: Dockerfile
     ports:
-      - "8002:8000"
+      - "8082:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
@@ -101,7 +101,7 @@ services:
       context: ./services/price-discovery-service
       dockerfile: Dockerfile
     ports:
-      - "8003:8000"
+      - "8083:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - INFLUXDB_URL=http://influxdb:8086
@@ -118,7 +118,7 @@ services:
       context: ./services/user-management-service
       dockerfile: Dockerfile
     ports:
-      - "8004:8000"
+      - "8084:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -133,7 +133,7 @@ services:
       context: ./services/msp-enforcement-service
       dockerfile: Dockerfile
     ports:
-      - "8005:8000"
+      - "8085:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -150,7 +150,7 @@ services:
       context: ./services/benchmarking-service
       dockerfile: Dockerfile
     ports:
-      - "8009:8000"
+      - "8089:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
@@ -169,7 +169,7 @@ services:
       context: ./services/negotiation-intelligence-service
       dockerfile: Dockerfile
     ports:
-      - "8006:8000"
+      - "8086:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
@@ -188,7 +188,7 @@ services:
       context: ./services/crop-planning-service
       dockerfile: Dockerfile
     ports:
-      - "8007:8000"
+      - "8087:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - MONGODB_URL=mongodb://mandi_user:mandi_pass@mongodb:27017/mandi_ear
@@ -207,7 +207,7 @@ services:
       context: ./services/anti-hoarding-service
       dockerfile: Dockerfile
     ports:
-      - "8008:8000"
+      - "8088:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -224,7 +224,7 @@ services:
       context: ./services/notification-service
       dockerfile: Dockerfile
     ports:
-      - "8010:8000"
+      - "8090:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -239,7 +239,7 @@ services:
       context: ./services/accessibility-service
       dockerfile: Dockerfile
     ports:
-      - "8011:8000"
+      - "8091:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -254,7 +254,7 @@ services:
       context: ./services/offline-cache-service
       dockerfile: Dockerfile
     ports:
-      - "8012:8000"
+      - "8092:8000"
     environment:
       - DATABASE_URL=postgresql://mandi_user:mandi_pass@postgres:5432/mandi_ear
       - REDIS_URL=redis://redis:6379
@@ -281,8 +281,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - "8079:80"
+      - "8443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl

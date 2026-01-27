@@ -7,59 +7,103 @@
 
 ## 🌾 Overview
 
-MANDI EAR™ is a comprehensive agricultural intelligence platform designed to empower farmers and vendors with real-time market insights, price discovery, and AI-powered negotiation assistance. The platform leverages ambient AI technology to extract market intelligence from conversations and provides multilingual support for India's diverse agricultural community.
+MANDI EAR™ is India's first ambient AI-powered, farmer-first, multilingual agricultural intelligence platform designed to empower farmers and vendors with real-time market insights, price discovery, and AI-powered negotiation assistance. The platform leverages ambient AI technology to extract market intelligence from conversations and provides multilingual support for India's diverse agricultural community.
 
 ## ✨ Key Features
 
 ### 🎯 Core Capabilities
-- **Ambient AI Engine**: Real-time conversation analysis for market intelligence
-- **Multilingual Voice Interface**: Support for 50+ Indian languages
-- **Price Discovery Network**: Cross-mandi price comparison and analysis
-- **AI Negotiation Copilot**: Intelligent negotiation assistance
-- **Crop Planning Engine**: Data-driven agricultural planning
-- **MSP Enforcement**: Minimum Support Price monitoring and compliance
-- **Anti-Hoarding Detection**: Market manipulation prevention
+- **🎤 Voice Processing**: Multilingual transcription and synthesis in 50+ Indian languages
+- **💰 Price Discovery**: Real-time market prices from mandis across all Indian states
+- **🤝 Negotiation Assistant**: AI-powered negotiation strategies with market analysis
+- **🌱 Crop Planning**: Intelligent crop recommendations based on weather, soil, and market trends
+- **📊 MSP Monitoring**: Continuous monitoring of Minimum Support Prices with alerts
+- **🌐 Cross-Mandi Network**: National network of mandi data with transportation costs
+- **🥬 Comprehensive Commodities**: Support for grains, vegetables, and cash crops
 
-### 🌐 Accessibility & User Experience
-- **Screen Reader Support**: Full ARIA compliance for visually impaired users
-- **High-Contrast Modes**: Customizable themes for better visibility
-- **Voice Navigation**: Hands-free operation with voice commands
-- **Keyboard Navigation**: Complete keyboard accessibility
-- **Offline Mode**: Essential functionality without internet connectivity
-- **Progressive Sync**: Intelligent data synchronization for poor connectivity
+### 🌐 Enhanced User Experience
+- **🌍 Multi-Language Support**: 12+ Indian languages with real-time UI translation
+- **📍 Location-Based Pricing**: Different prices for 6+ major mandis
+- **🥕 Commodity Filtering**: Filter by grains, top 8 vegetables, or cash crops
+- **📱 Mobile Responsive**: Works perfectly on all devices
+- **🔔 Smart Notifications**: Real-time feedback with professional notifications
+- **🧪 Interactive Testing**: Test all features directly from the web interface
 
-### 📱 Platform Features
-- **Tutorial System**: Interactive user guidance and onboarding
-- **Real-time Alerts**: Customizable price and weather notifications
-- **Performance Analytics**: Farmer benchmarking and income tracking
-- **Multi-channel Notifications**: SMS, voice, and app notifications
+## 🚀 **QUICK START - No Docker Required!**
 
-## 🏗️ Architecture
+### **🎯 One-Click Setup (Recommended)**
 
-The platform follows a microservices architecture with the following components:
+#### **Requirements:**
+- **Python 3.7+** (usually pre-installed on most systems)
+- **Internet connection** (for initial dependency download only)
+- **Web browser** (Chrome, Firefox, Safari, Edge)
 
-```
-mandi-ear/
-├── services/
-│   ├── ambient-ai-service/          # AI conversation analysis
-│   ├── voice-processing-service/    # Multilingual voice interface
-│   ├── price-discovery-service/     # Market price intelligence
-│   ├── negotiation-intelligence-service/ # AI negotiation assistance
-│   ├── crop-planning-service/       # Agricultural planning
-│   ├── msp-enforcement-service/     # MSP monitoring
-│   ├── anti-hoarding-service/       # Market manipulation detection
-│   ├── benchmarking-service/        # Performance analytics
-│   ├── notification-service/        # Alert system
-│   ├── accessibility-service/       # Accessibility features
-│   ├── offline-cache-service/       # Offline functionality
-│   ├── user-management-service/     # User authentication
-│   └── api-gateway/                 # Unified API gateway
-├── tests/                           # Property-based tests
-├── scripts/                         # Deployment scripts
-└── .kiro/specs/                     # Project specifications
+#### **Step 1: Download & Run**
+```bash
+# Navigate to project directory
+cd mandi-ear
+
+# Option 1: Double-click to run (Windows)
+start_mandi_ear.bat
+
+# Option 2: Command line (All platforms)
+python standalone_mandi_ear.py
 ```
 
-## 🚀 Quick Start
+#### **Step 2: Access the Platform**
+Open your web browser and visit: **http://localhost:8001**
+
+### **🌟 What You'll See:**
+
+#### **Main Features Available:**
+1. **🌍 Language Selector** - Switch between 12+ Indian languages
+2. **📍 Location Selector** - Choose from 6 different mandis
+3. **🥬 Commodity Selector** - Filter by grains, vegetables, or cash crops
+4. **💰 Live Price Updates** - Real-time market prices with trends
+5. **🧪 Interactive API Testing** - Test all features with one click
+
+#### **Supported Commodities:**
+- **🌾 Grains & Cereals**: Wheat, Rice, Corn
+- **🥬 Top 8 Vegetables**: Tomato, Onion, Potato, Cabbage, Cauliflower, Carrot, Green Beans, Bell Pepper
+- **💰 Cash Crops**: Cotton, Sugarcane
+
+#### **Available Locations:**
+- 🏛️ Delhi Mandi
+- 🏢 Gurgaon Mandi (Haryana)
+- 🏭 Faridabad Mandi (Haryana)
+- 🌾 Meerut Mandi (UP)
+- 🚜 Panipat Mandi (Haryana)
+
+### **🧪 Testing All Features:**
+
+#### **1. Feature Testing Buttons:**
+- **🎤 Voice Processing** - Test multilingual voice transcription
+- **💰 Price Discovery** - Get real-time wheat prices
+- **🤝 Negotiation Assistant** - AI-powered market analysis
+- **🌱 Crop Planning** - Intelligent crop recommendations
+- **📊 MSP Monitoring** - Government price compliance
+- **🌐 Cross-Mandi Network** - Multi-location mandi data
+
+#### **2. System Testing:**
+- **🚀 Run All Tests** - Comprehensive system testing
+- **⚡ Quick Test** - System functionality check
+- **🏥 Health Check** - Server status verification
+- **🔄 Refresh Prices** - Update market prices
+
+### **🌐 API Endpoints Available:**
+
+| Feature | URL | Description |
+|---------|-----|-------------|
+| **Main Interface** | http://localhost:8001 | Beautiful web interface with all features |
+| **API Documentation** | http://localhost:8001/docs | Interactive Swagger UI for API testing |
+| **Health Check** | http://localhost:8001/health | System status and service health |
+| **Current Prices** | http://localhost:8001/api/v1/prices/current | Live market prices for all commodities |
+| **Voice Processing** | http://localhost:8001/api/v1/voice/transcribe | Multilingual voice transcription |
+| **Negotiation Analysis** | http://localhost:8001/api/v1/negotiation/analyze | AI-powered negotiation strategies |
+| **Crop Planning** | http://localhost:8001/api/v1/crop-planning/recommend | Intelligent crop recommendations |
+| **MSP Rates** | http://localhost:8001/api/v1/msp/rates | Government minimum support prices |
+| **Mandi List** | http://localhost:8001/api/v1/mandis | Available mandis and locations |
+
+## 🔧 **Advanced Setup (Docker)**
 
 ### Prerequisites
 - Python 3.8+
@@ -80,30 +124,89 @@ mandi-ear/
    # Edit .env with your configuration
    ```
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Start services with Docker**
+3. **Start services with Docker**
    ```bash
    docker-compose up -d
    ```
 
-5. **Initialize databases**
+4. **Access the application**
    ```bash
-   python scripts/init-db.sql
+   # API Gateway: http://localhost:8080
+   # Individual services: http://localhost:8081-8092
    ```
 
-6. **Run the application**
-   ```bash
-   # Development
-   ./scripts/start-dev.sh  # Linux/Mac
-   ./scripts/start-dev.bat # Windows
-   
-   # Production
-   make start
+## 🚨 **Troubleshooting**
+
+### **Common Issues & Solutions:**
+
+#### **1. Python not found?**
+- **Windows**: Install Python from https://python.org/downloads
+- **Mac**: Use Homebrew: `brew install python3`
+- **Linux**: Use package manager: `sudo apt install python3`
+- **Make sure "Add to PATH" is checked during installation**
+
+#### **2. Permission errors?**
+- **Windows**: Run as Administrator
+- **Mac/Linux**: Use `sudo python standalone_mandi_ear.py`
+
+#### **3. Port 8001 in use?**
+- Check what's using the port: `netstat -ano | findstr :8001`
+- Kill the process or change port in `standalone_mandi_ear.py`
+
+#### **4. Dependencies not installing?**
+- Ensure internet connection is stable
+- Try manual installation: `pip install fastapi uvicorn`
+- Use virtual environment: `python -m venv venv && source venv/bin/activate`
+
+#### **5. Browser can't connect?**
+- Ensure server is running (check console output)
+- Try different browser or incognito mode
+- Clear browser cache (Ctrl+F5)
+- Check firewall settings
+
+### **🎯 Success Indicators:**
+
+When everything works correctly, you should see:
+
+1. ✅ **Console Output**: 
    ```
+   🌾 Starting MANDI EAR™ Agricultural Intelligence Platform...
+   📦 All dependencies resolved automatically!
+   🚀 Server starting on http://localhost:8001
+   ✅ MANDI EAR™ is ready to serve farmers across India!
+   ```
+
+2. ✅ **Web Interface**: Beautiful homepage with all features working
+3. ✅ **API Responses**: JSON data from all test buttons
+4. ✅ **Interactive Features**: Language selector, location selector, commodity filtering
+
+## 🏗️ Architecture
+
+The platform follows a microservices architecture with the following components:
+
+```
+mandi-ear/
+├── standalone_mandi_ear.py         # 🚀 Self-contained version (RECOMMENDED)
+├── start_mandi_ear.bat            # 🖱️ One-click startup script
+├── QUICK_START.md                 # 📖 Quick setup guide
+├── services/                      # 🏗️ Microservices architecture
+│   ├── ambient-ai-service/        # AI conversation analysis
+│   ├── voice-processing-service/  # Multilingual voice interface
+│   ├── price-discovery-service/   # Market price intelligence
+│   ├── negotiation-intelligence-service/ # AI negotiation assistance
+│   ├── crop-planning-service/     # Agricultural planning
+│   ├── msp-enforcement-service/   # MSP monitoring
+│   ├── anti-hoarding-service/     # Market manipulation detection
+│   ├── benchmarking-service/      # Performance analytics
+│   ├── notification-service/      # Alert system
+│   ├── accessibility-service/     # Accessibility features
+│   ├── offline-cache-service/     # Offline functionality
+│   ├── user-management-service/   # User authentication
+│   └── api-gateway/               # Unified API gateway
+├── tests/                         # Property-based tests
+├── scripts/                       # Deployment scripts
+└── .kiro/specs/                   # Project specifications
+```
 
 ## 🧪 Testing
 

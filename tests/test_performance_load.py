@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 
 # Test configuration
-API_GATEWAY_URL = "http://localhost:8000"
+API_GATEWAY_URL = "http://localhost:8080"
 MAX_CONCURRENT_USERS = 50
 TEST_DURATION_SECONDS = 60
 

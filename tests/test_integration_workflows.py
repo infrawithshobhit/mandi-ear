@@ -12,7 +12,7 @@ from typing import Dict, Any, List
 import uuid
 
 # Test configuration
-API_GATEWAY_URL = "http://localhost:8000"
+API_GATEWAY_URL = "http://localhost:8080"
 TEST_USER_ID = "test-integration-user"
 TEST_PHONE = "+919876543210"
 TEST_PASSWORD = "integration_test_pass"
