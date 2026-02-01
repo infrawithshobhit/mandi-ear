@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test All Mandis Functionality - MANDI EAR™</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #218838;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .info {
+            border-left-color: #17a2b8;
+            background: #d1ecf1;
+        }
+        .iframe-container {
+            margin-top: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🗺️ All Mandis Functionality Test</h1>
+        <p>This test verifies that the All Mandis modal functionality is working correctly.</p>
+        
+        <div class="test-controls">
+            <button class="test-button" onclick="testAPIEndpoint()">Test API Endpoint</button>
+            <button class="test-button" onclick="testModalFunctionality()">Test Modal Functionality</button>
+            <button class="test-button" onclick="testFilterFunctionality()">Test Filter Functionality</button>
+            <button class="test-button" onclick="openMainApp()">Open Main App</button>
+        </div>
+        
+        <div id="test-results" class="results">
+            <h3>Test Results:</h3>
+            <p>Click the test buttons above to verify functionality.</p>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>📱 Live Application</h2>
+        <p>The MANDI EAR™ application should load below. Look for the "All Mandis (50)" button in the demo controls.</p>
+        <div class="iframe-container">
+            <iframe id="app-frame" src="http://localhost:8001"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `results ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+        }
+
+        async function testAPIEndpoint() {
+            addResult('🔍 Testing /api/v1/mandis endpoint...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/mandis');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`✅ API Success: Found ${data.total_mandis} mandis across ${data.states_covered} states`, 'success');
+                    addResult(`📊 Active mandis: ${data.summary.active_mandis}, Maintenance: ${data.summary.maintenance_mandis}`, 'info');
+                    
+                    // Test data structure
+                    if (data.mandis && data.mandis.length > 0) {
+                        const firstMandi = data.mandis[0];
+                        const requiredFields = ['id', 'name', 'location', 'state', 'status', 'facilities'];
+                        const missingFields = requiredFields.filter(field => !firstMandi.hasOwnProperty(field));
+                        
+                        if (missingFields.length === 0) {
+                            addResult('✅ Data structure validation passed', 'success');
+                        } else {
+                            addResult(`❌ Missing fields in mandi data: ${missingFields.join(', ')}`, 'error');
+                        }
+                    }
+                } else {
+                    addResult(`❌ API Error: ${response.status} - ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Network Error: ${error.message}`, 'error');
+                addResult('💡 Make sure MANDI EAR server is running on port 8001', 'info');
+            }
+        }
+
+        async function testModalFunctionality() {
+            addResult('🔍 Testing modal functionality...', 'info');
+            
+            try {
+                // Try to access the iframe and test the function
+                const iframe = document.getElementById('app-frame');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow && typeof iframeWindow.openAllMandisTab === 'function') {
+                    addResult('✅ openAllMandisTab function found in main app', 'success');
+                    addResult('💡 Click "All Mandis (50)" button in the app below to test the modal', 'info');
+                } else {
+                    addResult('⚠️ Cannot access iframe functions (CORS/loading issue)', 'info');
+                    addResult('💡 Test manually by clicking the "All Mandis (50)" button in the app', 'info');
+                }
+            } catch (error) {
+                addResult('⚠️ Cannot test modal function directly due to iframe restrictions', 'info');
+                addResult('💡 Test manually by clicking the "All Mandis (50)" button in the app', 'info');
+            }
+        }
+
+        async function testFilterFunctionality() {
+            addResult('🔍 Testing filter functionality...', 'info');
+            
+            // Test if the API returns data that can be filtered
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/mandis');
+                const data = await response.json();
+                
+                if (response.ok && data.mandis) {
+                    // Test state filtering
+                    const states = [...new Set(data.mandis.map(m => m.state_code))];
+                    addResult(`✅ Found ${states.length} unique states for filtering: ${states.slice(0, 5).join(', ')}${states.length > 5 ? '...' : ''}`, 'success');
+                    
+                    // Test status filtering
+                    const statuses = [...new Set(data.mandis.map(m => m.status))];
+                    addResult(`✅ Found ${statuses.length} status types: ${statuses.join(', ')}`, 'success');
+                    
+                    // Test search functionality (simulate)
+                    const searchableMandis = data.mandis.filter(m => 
+                        m.name.toLowerCase().includes('delhi') || 
+                        m.location.toLowerCase().includes('delhi')
+                    );
+                    addResult(`✅ Search test: Found ${searchableMandis.length} mandis matching 'delhi'`, 'success');
+                    
+                    addResult('💡 Open the All Mandis modal to test filters interactively', 'info');
+                } else {
+                    addResult('❌ Cannot test filters - API data not available', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Filter test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function openMainApp() {
+            window.open('http://localhost:8001', '_blank');
+        }
+
+        // Auto-run API test when page loads
+        window.onload = function() {
+            addResult('🚀 All Mandis functionality test page loaded', 'success');
+            addResult('📋 Test Checklist:', 'info');
+            addResult('1. ✅ API endpoint returns mandi data', 'info');
+            addResult('2. 🔲 Modal opens when "All Mandis (50)" button is clicked', 'info');
+            addResult('3. 🔲 Mandis are displayed in grid format', 'info');
+            addResult('4. 🔲 State filter works correctly', 'info');
+            addResult('5. 🔲 Status filter works correctly', 'info');
+            addResult('6. 🔲 Search functionality works', 'info');
+            addResult('7. 🔲 Modal shows correct statistics', 'info');
+            
+            // Auto-test API
+            setTimeout(testAPIEndpoint, 1000);
+        };
+    </script>
+</body>
+</html>

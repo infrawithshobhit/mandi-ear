@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Button Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { padding: 5px; margin: 2px 0; border-radius: 3px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        button { padding: 10px 20px; margin: 5px; }
+        iframe { width: 100%; height: 300px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h2>Minimal Button Test</h2>
+    <button onclick="testNow()">Test Voice Button Now</button>
+    <button onclick="clearLog()">Clear</button>
+    
+    <div id="log"></div>
+    <iframe id="app" src="http://localhost:8001"></iframe>
+
+    <script>
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()} - ${msg}`;
+            document.getElementById('log').appendChild(div);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        async function testNow() {
+            log('Starting test...', 'info');
+            
+            try {
+                const iframe = document.getElementById('app');
+                const appWindow = iframe.contentWindow;
+                const appDoc = iframe.contentDocument;
+                
+                // Wait for load
+                await new Promise(r => setTimeout(r, 3000));
+                
+                // Check if app loaded
+                if (!appDoc || !appWindow) {
+                    log('App not loaded', 'error');
+                    return;
+                }
+                log('App loaded', 'success');
+                
+                // Find voice button
+                const btn = appDoc.querySelector('button[onclick="testVoiceProcessing()"]');
+                if (!btn) {
+                    log('Voice button not found', 'error');
+                    
+                    // List all buttons
+                    const allBtns = appDoc.querySelectorAll('button');
+                    log(`Found ${allBtns.length} total buttons`, 'info');
+                    allBtns.forEach((b, i) => {
+                        log(`Button ${i+1}: "${b.textContent.trim()}" onclick="${b.getAttribute('onclick')}"`, 'info');
+                    });
+                    return;
+                }
+                log('Voice button found', 'success');
+                
+                // Check function
+                if (typeof appWindow.testVoiceProcessing !== 'function') {
+                    log('testVoiceProcessing function missing', 'error');
+                    return;
+                }
+                log('testVoiceProcessing function exists', 'success');
+                
+                // Check results div
+                const results = appDoc.getElementById('results');
+                if (!results) {
+                    log('Results div missing', 'error');
+                    return;
+                }
+                log('Results div found', 'success');
+                
+                // Click button
+                log('Clicking button...', 'info');
+                btn.click();
+                
+                // Wait and check
+                setTimeout(() => {
+                    const content = results.innerHTML;
+                    if (content.includes('Testing')) {
+                        log('SUCCESS: Button worked!', 'success');
+                    } else if (content.includes('SUCCESS')) {
+                        log('SUCCESS: API call completed!', 'success');
+                    } else {
+                        log('Button clicked but no response', 'error');
+                        log(`Results content: ${content.substring(0, 200)}`, 'info');
+                    }
+                }, 4000);
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

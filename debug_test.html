@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug MANDI EAR</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #console-output { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; max-height: 300px; overflow-y: auto; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔍 MANDI EAR Debug Test</h1>
+    
+    <div class="test-result info">
+        <h3>Testing JavaScript Functions</h3>
+        <button onclick="testLanguageDropdown()">Test Language Dropdown</button>
+        <button onclick="testModalFunctions()">Test Modal Functions</button>
+        <button onclick="testTabFunctions()">Test Tab Functions</button>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+    
+    <div id="console-output">
+        <div>Console output will appear here...</div>
+    </div>
+    
+    <div class="test-result info">
+        <h3>Manual Tests</h3>
+        <p>1. Open <a href="http://localhost:8001" target="_blank">Main MANDI EAR App</a></p>
+        <p>2. Open browser developer console (F12)</p>
+        <p>3. Check for JavaScript errors</p>
+        <p>4. Try clicking language dropdown and tabs</p>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('console-output');
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '<div>Console cleared...</div>';
+        }
+        
+        async function testLanguageDropdown() {
+            log('Testing language dropdown functionality...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001/');
+                const html = await response.text();
+                
+                // Check for language dropdown elements
+                if (html.includes('toggleLanguageDropdown')) {
+                    log('✅ toggleLanguageDropdown function found', 'success');
+                } else {
+                    log('❌ toggleLanguageDropdown function missing', 'error');
+                }
+                
+                if (html.includes('selectLanguage')) {
+                    log('✅ selectLanguage function found', 'success');
+                } else {
+                    log('❌ selectLanguage function missing', 'error');
+                }
+                
+                if (html.includes('language-options')) {
+                    log('✅ Language options HTML found', 'success');
+                } else {
+                    log('❌ Language options HTML missing', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing language dropdown: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testModalFunctions() {
+            log('Testing modal functions...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001/');
+                const html = await response.text();
+                
+                const modalFunctions = [
+                    'openModal',
+                    'closeModal',
+                    'openVoiceProcessingTab',
+                    'openPriceDiscoveryTab',
+                    'openNegotiationTab',
+                    'openCropPlanningTab',
+                    'openMSPMonitoringTab',
+                    'openCrossMandiTab'
+                ];
+                
+                modalFunctions.forEach(func => {
+                    if (html.includes(`function ${func}`)) {
+                        log(`✅ ${func} function found`, 'success');
+                    } else {
+                        log(`❌ ${func} function missing`, 'error');
+                    }
+                });
+                
+                // Check for modal HTML elements
+                const modals = ['voice-modal', 'price-modal', 'negotiation-modal', 'crop-modal', 'msp-modal', 'mandi-modal'];
+                modals.forEach(modal => {
+                    if (html.includes(`id="${modal}"`)) {
+                        log(`✅ ${modal} HTML found`, 'success');
+                    } else {
+                        log(`❌ ${modal} HTML missing`, 'error');
+                    }
+                });
+                
+            } catch (error) {
+                log(`❌ Error testing modal functions: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testTabFunctions() {
+            log('Testing tab button functionality...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001/');
+                const html = await response.text();
+                
+                // Check for onclick handlers
+                const onclickHandlers = [
+                    'openVoiceProcessingTab()',
+                    'openPriceDiscoveryTab()',
+                    'openNegotiationTab()',
+                    'openCropPlanningTab()',
+                    'openMSPMonitoringTab()',
+                    'openCrossMandiTab()'
+                ];
+                
+                onclickHandlers.forEach(handler => {
+                    if (html.includes(`onclick="${handler}"`)) {
+                        log(`✅ ${handler} onclick found`, 'success');
+                    } else {
+                        log(`❌ ${handler} onclick missing`, 'error');
+                    }
+                });
+                
+                // Check for syntax errors
+                if (html.includes("couldn\\'t") || html.includes("you\\'re")) {
+                    log('❌ JavaScript syntax errors found (unescaped apostrophes)', 'error');
+                } else {
+                    log('✅ No obvious JavaScript syntax errors', 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing tab functions: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.onload = function() {
+            log('🚀 Starting automatic tests...', 'info');
+            setTimeout(() => testLanguageDropdown(), 500);
+            setTimeout(() => testModalFunctions(), 1000);
+            setTimeout(() => testTabFunctions(), 1500);
+        };
+    </script>
+</body>
+</html>

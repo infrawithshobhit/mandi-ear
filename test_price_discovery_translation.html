@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Discovery Translation Test - MANDI EAR™</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .test-button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .test-button:hover { background: #0056b3; }
+        .results { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        .feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .feature-card { background: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 5px solid #007bff; }
+        .feature-card h3 { margin: 0 0 10px 0; color: #0d47a1; }
+        .feature-card p { margin: 0; color: #666; }
+        .translation-example { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Price Discovery Translation Test</h1>
+        
+        <div class="status info">
+            <strong>Status:</strong> Testing multilingual support for Price Discovery modal
+        </div>
+        
+        <h2>✅ Translation Implementation Summary</h2>
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>🌐 Translation Keys Added</h3>
+                <p>Added 18 translation keys for Price Discovery modal in English and Hindi</p>
+            </div>
+            <div class="feature-card">
+                <h3>🏷️ Data-Translate Attributes</h3>
+                <p>Added data-translate attributes to all modal elements for automatic translation</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔄 Dynamic Updates</h3>
+                <p>Modal content updates automatically when language is changed</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Results Translation</h3>
+                <p>Search results and recommendations are translated based on selected language</p>
+            </div>
+        </div>
+        
+        <h2>🧪 Translation Test Instructions</h2>
+        
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="openMainPage()">Open Main Page</button>
+            <button class="test-button" onclick="showTranslationExamples()">Show Translation Examples</button>
+        </div>
+        
+        <div id="test-results" class="results">
+            <p><strong>Follow these steps to test translations:</strong></p>
+            <ol>
+                <li>Click "Open Main Page" above</li>
+                <li>Change language to Hindi (हिंदी) from the language dropdown</li>
+                <li>Click "Open Price Discovery" button</li>
+                <li>Verify all labels are in Hindi:
+                    <ul>
+                        <li>Modal title: "उन्नत मूल्य खोज"</li>
+                        <li>Commodity: "वस्तु:"</li>
+                        <li>Location: "स्थान:"</li>
+                        <li>Time Period: "समय अवधि:"</li>
+                        <li>Search button: "मूल्य खोजें"</li>
+                    </ul>
+                </li>
+                <li>Select filters and click "मूल्य खोजें"</li>
+                <li>Verify results are in Hindi</li>
+                <li>Try changing language back to English while modal is open</li>
+                <li>Verify content updates to English immediately</li>
+            </ol>
+        </div>
+        
+        <h2>📝 Translation Examples</h2>
+        
+        <div class="translation-example">
+            <h4>English → Hindi Translations:</h4>
+            <ul>
+                <li><strong>Advanced Price Discovery</strong> → उन्नत मूल्य खोज</li>
+                <li><strong>Commodity:</strong> → वस्तु:</li>
+                <li><strong>Location:</strong> → स्थान:</li>
+                <li><strong>Time Period:</strong> → समय अवधि:</li>
+                <li><strong>Search Prices</strong> → मूल्य खोजें</li>
+                <li><strong>All Commodities</strong> → सभी वस्तुएं</li>
+                <li><strong>All Locations</strong> → सभी स्थान</li>
+                <li><strong>Today</strong> → आज</li>
+                <li><strong>Last Week</strong> → पिछला सप्ताह</li>
+                <li><strong>Price Analysis Results</strong> → मूल्य विश्लेषण परिणाम</li>
+                <li><strong>Detailed Analysis</strong> → विस्तृत विश्लेषण</li>
+                <li><strong>Current Price:</strong> → वर्तमान मूल्य:</li>
+                <li><strong>Recommendations:</strong> → सिफारिशें:</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 Expected Behavior</h2>
+        <div class="status success">
+            <strong>When working correctly:</strong><br>
+            1. Language dropdown changes to Hindi → All UI elements update<br>
+            2. Open Price Discovery modal → All labels are in Hindi<br>
+            3. Dropdown options show Hindi text<br>
+            4. Search results display Hindi labels and recommendations<br>
+            5. Change language while modal is open → Content updates immediately<br>
+            6. Chart titles and analysis results are translated<br>
+            7. Commodity names use translated versions
+        </div>
+        
+        <h2>🔍 Troubleshooting</h2>
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>Issue: Labels still in English</h3>
+                <p>Solution: Refresh page and try again. Make sure to select Hindi from language dropdown first.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Issue: Modal doesn't update language</h3>
+                <p>Solution: Close and reopen the modal after changing language, or change language while modal is open.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Issue: Results not translated</h3>
+                <p>Solution: Perform a new search after changing language to see translated results.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Issue: Commodity names in English</h3>
+                <p>Solution: The getCommodityTranslation function should handle this automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openMainPage() {
+            window.open('http://localhost:8001', '_blank');
+            document.getElementById('test-results').innerHTML = `
+                <div style="color: #007bff; font-weight: bold;">✅ Main page opened in new tab</div>
+                <p><strong>Testing Steps:</strong></p>
+                <ol>
+                    <li>Change language to Hindi (हिंदी) from dropdown</li>
+                    <li>Click "Open Price Discovery" button</li>
+                    <li>Verify all modal content is in Hindi</li>
+                    <li>Test search functionality with Hindi interface</li>
+                    <li>Change language back to English while modal is open</li>
+                    <li>Verify immediate translation update</li>
+                </ol>
+                <p><strong>Expected Result:</strong> All Price Discovery modal content should translate properly between English and Hindi.</p>
+            `;
+        }
+        
+        function showTranslationExamples() {
+            document.getElementById('test-results').innerHTML = `
+                <div style="color: #28a745; font-weight: bold;">📝 Translation Key Mappings</div>
+                <h4>Modal Elements:</h4>
+                <ul>
+                    <li><code>price-modal-title</code>: Advanced Price Discovery → उन्नत मूल्य खोज</li>
+                    <li><code>commodity-label</code>: Commodity: → वस्तु:</li>
+                    <li><code>location-label</code>: Location: → स्थान:</li>
+                    <li><code>time-period-label</code>: Time Period: → समय अवधि:</li>
+                    <li><code>search-prices-btn</code>: Search Prices → मूल्य खोजें</li>
+                </ul>
+                <h4>Dropdown Options:</h4>
+                <ul>
+                    <li><code>all-commodities-option</code>: All Commodities → सभी वस्तुएं</li>
+                    <li><code>all-locations-option</code>: All Locations → सभी स्थान</li>
+                    <li><code>today-option</code>: Today → आज</li>
+                    <li><code>week-option</code>: Last Week → पिछला सप्ताह</li>
+                </ul>
+                <h4>Results Section:</h4>
+                <ul>
+                    <li><code>price-analysis-results</code>: Price Analysis Results → मूल्य विश्लेषण परिणाम</li>
+                    <li><code>detailed-analysis</code>: Detailed Analysis → विस्तृत विश्लेषण</li>
+                    <li><code>current-price-label</code>: Current Price: → वर्तमान मूल्य:</li>
+                    <li><code>recommendations-title</code>: Recommendations: → सिफारिशें:</li>
+                </ul>
+                <p><strong>Note:</strong> All these translations are automatically applied when the language is changed.</p>
+            `;
+        }
+    </script>
+</body>
+</html>

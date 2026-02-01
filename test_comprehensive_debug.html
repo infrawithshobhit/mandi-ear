@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Language Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .debug-panel { background: white; padding: 20px; border-radius: 8px; margin: 10px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .log { padding: 8px; margin: 3px 0; border-radius: 4px; font-family: monospace; font-size: 13px; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        button { background: #007bff; color: white; padding: 10px 16px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        #logs { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; background: #f8f9fa; border-radius: 4px; }
+        iframe { width: 100%; height: 500px; border: 2px solid #ddd; border-radius: 4px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
+        .step { margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 4px; }
+        .step-title { font-weight: bold; color: #495057; }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h1>🔍 Comprehensive Language Debug Tool</h1>
+        <p>This tool will help identify exactly why the Hindi language selection isn't working.</p>
+        
+        <div class="step">
+            <div class="step-title">Step 1: Basic Checks</div>
+            <button onclick="runBasicChecks()">🔍 Run Basic Checks</button>
+            <button onclick="inspectHTML()">📄 Inspect HTML Structure</button>
+        </div>
+        
+        <div class="step">
+            <div class="step-title">Step 2: Function Tests</div>
+            <button onclick="testFunctions()">⚙️ Test JavaScript Functions</button>
+            <button onclick="testDropdownBehavior()">🔽 Test Dropdown Behavior</button>
+        </div>
+        
+        <div class="step">
+            <div class="step-title">Step 3: Language Selection</div>
+            <button onclick="testLanguageSelection()">🌍 Test Language Selection</button>
+            <button onclick="testUITranslation()">🔤 Test UI Translation</button>
+        </div>
+        
+        <div class="step">
+            <div class="step-title">Step 4: Fix Attempts</div>
+            <button onclick="attemptFix()" class="success">🔧 Attempt Fix</button>
+            <button onclick="clearLogs()" class="danger">🧹 Clear Logs</button>
+        </div>
+        
+        <div id="status" class="status info">Ready to debug...</div>
+    </div>
+    
+    <div class="debug-panel">
+        <h3>Debug Logs</h3>
+        <div id="logs"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h3>Application</h3>
+        <iframe id="app" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        let app = null;
+        let testResults = {};
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            testResults = {};
+            updateStatus('Logs cleared', 'info');
+        }
+
+        function getApp() {
+            if (!app) {
+                const iframe = document.getElementById('app');
+                app = {
+                    window: iframe.contentWindow,
+                    document: iframe.contentDocument
+                };
+            }
+            return app;
+        }
+
+        async function runBasicChecks() {
+            log('🔍 Running basic checks...', 'info');
+            updateStatus('Running basic checks...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Check if app loaded
+                if (!app.document || !app.window) {
+                    log('❌ App not loaded properly', 'error');
+                    return;
+                }
+                log('✅ App loaded successfully', 'success');
+                
+                // Check key elements
+                const elements = [
+                    { id: 'current-language', name: 'Current Language Display' },
+                    { id: 'language-options', name: 'Language Options Container' },
+                    { selector: '.language-dropdown', name: 'Language Dropdown Button' },
+                    { selector: '.language-option', name: 'Language Options' }
+                ];
+                
+                let allElementsFound = true;
+                elements.forEach(element => {
+                    let found;
+                    if (element.id) {
+                        found = app.document.getElementById(element.id);
+                    } else {
+                        found = app.document.querySelector(element.selector);
+                    }
+                    
+                    if (found) {
+                        log(`✅ ${element.name}: Found`, 'success');
+                        testResults[element.name] = true;
+                    } else {
+                        log(`❌ ${element.name}: Not found`, 'error');
+                        testResults[element.name] = false;
+                        allElementsFound = false;
+                    }
+                });
+                
+                if (allElementsFound) {
+                    updateStatus('✅ All basic elements found', 'success');
+                } else {
+                    updateStatus('❌ Some elements missing', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error in basic checks: ${error.message}`, 'error');
+                updateStatus('❌ Basic checks failed', 'error');
+            }
+        }
+
+        async function inspectHTML() {
+            log('📄 Inspecting HTML structure...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check language dropdown structure
+                const dropdown = app.document.querySelector('.language-dropdown');
+                if (dropdown) {
+                    log(`✅ Dropdown button HTML: ${dropdown.outerHTML.substring(0, 200)}...`, 'info');
+                    log(`✅ Dropdown onclick: ${dropdown.getAttribute('onclick')}`, 'info');
+                }
+                
+                // Check language options
+                const options = app.document.querySelectorAll('.language-option');
+                log(`✅ Found ${options.length} language options`, 'info');
+                
+                // Check Hindi option specifically
+                const hindiOption = app.document.querySelector('.language-option[onclick*="hi"]');
+                if (hindiOption) {
+                    log(`✅ Hindi option found: "${hindiOption.textContent.trim()}"`, 'success');
+                    log(`✅ Hindi onclick: ${hindiOption.getAttribute('onclick')}`, 'info');
+                } else {
+                    log('❌ Hindi option not found', 'error');
+                }
+                
+                // Check CSS classes
+                const languageOptionsContainer = app.document.getElementById('language-options');
+                if (languageOptionsContainer) {
+                    log(`✅ Language options classes: ${languageOptionsContainer.className}`, 'info');
+                    const computedStyle = app.window.getComputedStyle(languageOptionsContainer);
+                    log(`✅ Display style: ${computedStyle.display}`, 'info');
+                    log(`✅ Visibility: ${computedStyle.visibility}`, 'info');
+                }
+                
+            } catch (error) {
+                log(`❌ Error inspecting HTML: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFunctions() {
+            log('⚙️ Testing JavaScript functions...', 'info');
+            updateStatus('Testing functions...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const functions = [
+                    'toggleLanguageDropdown',
+                    'selectLanguage',
+                    'updateUILanguage',
+                    'showNotification'
+                ];
+                
+                let allFunctionsExist = true;
+                functions.forEach(funcName => {
+                    if (typeof app.window[funcName] === 'function') {
+                        log(`✅ Function ${funcName}: Available`, 'success');
+                        testResults[funcName] = true;
+                    } else {
+                        log(`❌ Function ${funcName}: Missing`, 'error');
+                        testResults[funcName] = false;
+                        allFunctionsExist = false;
+                    }
+                });
+                
+                if (allFunctionsExist) {
+                    updateStatus('✅ All functions available', 'success');
+                } else {
+                    updateStatus('❌ Some functions missing', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing functions: ${error.message}`, 'error');
+                updateStatus('❌ Function test failed', 'error');
+            }
+        }
+
+        async function testDropdownBehavior() {
+            log('🔽 Testing dropdown behavior...', 'info');
+            updateStatus('Testing dropdown...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const dropdown = app.document.getElementById('language-options');
+                if (!dropdown) {
+                    log('❌ Dropdown not found', 'error');
+                    return;
+                }
+                
+                // Check initial state
+                const initialState = dropdown.classList.contains('show');
+                log(`Initial dropdown state: ${initialState ? 'open' : 'closed'}`, 'info');
+                
+                // Test toggle function
+                if (typeof app.window.toggleLanguageDropdown === 'function') {
+                    log('Calling toggleLanguageDropdown()...', 'info');
+                    app.window.toggleLanguageDropdown();
+                    
+                    setTimeout(() => {
+                        const newState = dropdown.classList.contains('show');
+                        log(`Dropdown state after toggle: ${newState ? 'open' : 'closed'}`, 'info');
+                        
+                        if (initialState !== newState) {
+                            log('✅ Dropdown toggle works!', 'success');
+                            updateStatus('✅ Dropdown toggle works', 'success');
+                        } else {
+                            log('❌ Dropdown toggle failed', 'error');
+                            updateStatus('❌ Dropdown toggle failed', 'error');
+                        }
+                    }, 500);
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing dropdown: ${error.message}`, 'error');
+                updateStatus('❌ Dropdown test failed', 'error');
+            }
+        }
+
+        async function testLanguageSelection() {
+            log('🌍 Testing language selection...', 'info');
+            updateStatus('Testing language selection...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Get current language
+                const currentLangElement = app.document.getElementById('current-language');
+                if (!currentLangElement) {
+                    log('❌ Current language element not found', 'error');
+                    return;
+                }
+                
+                const beforeText = currentLangElement.textContent;
+                log(`Language before: "${beforeText}"`, 'info');
+                
+                // Test selectLanguage function
+                if (typeof app.window.selectLanguage === 'function') {
+                    log('Calling selectLanguage("hi", "हिंदी", "🇮🇳")...', 'info');
+                    
+                    // Capture console output
+                    const originalLog = app.window.console.log;
+                    const originalError = app.window.console.error;
+                    
+                    app.window.console.log = function(...args) {
+                        log(`App Console: ${args.join(' ')}`, 'info');
+                        originalLog.apply(this, args);
+                    };
+                    
+                    app.window.console.error = function(...args) {
+                        log(`App Error: ${args.join(' ')}`, 'error');
+                        originalError.apply(this, args);
+                    };
+                    
+                    // Call the function
+                    app.window.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                    
+                    // Check result
+                    setTimeout(() => {
+                        const afterText = currentLangElement.textContent;
+                        log(`Language after: "${afterText}"`, 'info');
+                        
+                        if (afterText.includes('हिंदी')) {
+                            log('✅ Language selection works!', 'success');
+                            updateStatus('✅ Language selection works', 'success');
+                        } else {
+                            log('❌ Language selection failed', 'error');
+                            updateStatus('❌ Language selection failed', 'error');
+                        }
+                        
+                        // Restore console
+                        app.window.console.log = originalLog;
+                        app.window.console.error = originalError;
+                    }, 1500);
+                    
+                } else {
+                    log('❌ selectLanguage function not found', 'error');
+                    updateStatus('❌ selectLanguage function missing', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing language selection: ${error.message}`, 'error');
+                updateStatus('❌ Language selection test failed', 'error');
+            }
+        }
+
+        async function testUITranslation() {
+            log('🔤 Testing UI translation...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check if UI elements have translation attributes
+                const translatableElements = app.document.querySelectorAll('[data-translate]');
+                log(`Found ${translatableElements.length} translatable elements`, 'info');
+                
+                // Test a few key elements
+                const keyElements = [
+                    'hero-title',
+                    'hero-subtitle',
+                    'live-prices',
+                    'system-operational'
+                ];
+                
+                keyElements.forEach(key => {
+                    const element = app.document.querySelector(`[data-translate="${key}"]`);
+                    if (element) {
+                        log(`✅ ${key}: "${element.textContent.trim()}"`, 'success');
+                    } else {
+                        log(`❌ ${key}: Not found`, 'error');
+                    }
+                });
+                
+            } catch (error) {
+                log(`❌ Error testing UI translation: ${error.message}`, 'error');
+            }
+        }
+
+        async function attemptFix() {
+            log('🔧 Attempting to fix language selection...', 'warning');
+            updateStatus('Attempting fix...', 'warning');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Force language selection
+                log('Force calling selectLanguage with Hindi...', 'info');
+                
+                if (typeof app.window.selectLanguage === 'function') {
+                    // Try multiple approaches
+                    app.window.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                    
+                    setTimeout(() => {
+                        // Check if it worked
+                        const currentLang = app.document.getElementById('current-language');
+                        if (currentLang && currentLang.textContent.includes('हिंदी')) {
+                            log('✅ Fix successful! Hindi language is now selected', 'success');
+                            updateStatus('✅ Fix successful!', 'success');
+                        } else {
+                            log('❌ Fix attempt failed', 'error');
+                            updateStatus('❌ Fix failed', 'error');
+                            
+                            // Try clicking the Hindi option directly
+                            log('Trying direct click on Hindi option...', 'info');
+                            const hindiOption = app.document.querySelector('.language-option[onclick*="hi"]');
+                            if (hindiOption) {
+                                hindiOption.click();
+                                
+                                setTimeout(() => {
+                                    const finalCheck = app.document.getElementById('current-language');
+                                    if (finalCheck && finalCheck.textContent.includes('हिंदी')) {
+                                        log('✅ Direct click worked!', 'success');
+                                        updateStatus('✅ Direct click fix worked!', 'success');
+                                    } else {
+                                        log('❌ Direct click also failed', 'error');
+                                        updateStatus('❌ All fix attempts failed', 'error');
+                                    }
+                                }, 1000);
+                            }
+                        }
+                    }, 1000);
+                }
+                
+            } catch (error) {
+                log(`❌ Error during fix attempt: ${error.message}`, 'error');
+                updateStatus('❌ Fix attempt error', 'error');
+            }
+        }
+
+        // Auto-run basic checks when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                log('🚀 Comprehensive debug tool loaded', 'info');
+                updateStatus('Debug tool ready - click "Run Basic Checks" to start', 'info');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Mandi Network Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🌐 Cross-Mandi Network Functionality Test</h1>
+    
+    <div class="test-result info">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Open <a href="http://localhost:8001" target="_blank">MANDI EAR™ Platform</a></li>
+            <li>Click on the "Cross-Mandi Network" button in the features section</li>
+            <li>Verify that the modal opens with the correct title and content</li>
+            <li>Change the language using the language dropdown</li>
+            <li>Verify that all modal content translates correctly</li>
+            <li>Enter a quantity (e.g., 100) and click "Find Best Markets"</li>
+            <li>Verify that arbitrage opportunities are displayed with translated text</li>
+        </ol>
+    </div>
+
+    <div class="test-result success">
+        <h3>✅ Expected Functionality:</h3>
+        <ul>
+            <li><strong>Modal Opening:</strong> Cross-Mandi Network button should open a modal instead of just testing API</li>
+            <li><strong>Modal Content:</strong> Modal should contain form fields for Source Mandi, Commodity, and Quantity</li>
+            <li><strong>Language Translation:</strong> All modal content should translate when language is changed</li>
+            <li><strong>Arbitrage Calculation:</strong> Entering quantity and clicking "Find Best Markets" should show profit/loss calculations</li>
+            <li><strong>Interactive Map:</strong> Modal should include a placeholder for the mandi network map</li>
+        </ul>
+    </div>
+
+    <div class="test-result info">
+        <h3>🔧 Technical Implementation:</h3>
+        <ul>
+            <li><strong>Modal Functions:</strong> openModal(), closeModal(), initializeCrossMandiNetwork(), findBestMarkets()</li>
+            <li><strong>Translation Support:</strong> updateCrossMandiNetworkLanguage() function with 33 language support</li>
+            <li><strong>Dynamic Content:</strong> Real-time arbitrage opportunity calculation with profit/loss display</li>
+            <li><strong>Responsive Design:</strong> Modal works on both desktop and mobile devices</li>
+        </ul>
+    </div>
+
+    <button onclick="window.open('http://localhost:8001', '_blank')">🚀 Open MANDI EAR™ Platform</button>
+    <button onclick="testAPI()">🧪 Test Cross-Mandi API</button>
+
+    <div id="api-test-results"></div>
+
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('api-test-results');
+            resultsDiv.innerHTML = '<div class="test-result info">Testing Cross-Mandi Network API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/mandis');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="test-result success">
+                        <h4>✅ API Test Successful</h4>
+                        <p><strong>Total Mandis:</strong> ${data.total_mandis}</p>
+                        <p><strong>Available Mandis:</strong> ${data.mandis.map(m => m.name).join(', ')}</p>
+                        <p><strong>Response Time:</strong> ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="test-result error">
+                        <h4>❌ API Test Failed</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

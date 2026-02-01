@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Hindi Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-panel { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 10px 0; }
+        .result { padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        iframe { width: 100%; height: 500px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="test-panel">
+        <h1>🇮🇳 Simple Hindi Language Test</h1>
+        <p>Testing if the Hindi language selection works after fixing the duplicate function issue.</p>
+        
+        <button onclick="testHindi()">🧪 Test Hindi Selection</button>
+        <button onclick="clearResults()">🧹 Clear</button>
+        
+        <div id="results"></div>
+    </div>
+    
+    <iframe id="app" src="http://localhost:8001"></iframe>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testHindi() {
+            addResult('🧪 Testing Hindi language selection...', 'info');
+            
+            try {
+                const iframe = document.getElementById('app');
+                const app = {
+                    window: iframe.contentWindow,
+                    document: iframe.contentDocument
+                };
+                
+                // Wait for app to load
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Check if selectLanguage function exists
+                if (typeof app.window.selectLanguage !== 'function') {
+                    addResult('❌ selectLanguage function not found', 'error');
+                    return;
+                }
+                addResult('✅ selectLanguage function found', 'success');
+                
+                // Get current language before
+                const currentLang = app.document.getElementById('current-language');
+                if (!currentLang) {
+                    addResult('❌ Current language element not found', 'error');
+                    return;
+                }
+                
+                const beforeText = currentLang.textContent;
+                addResult(`Language before: "${beforeText}"`, 'info');
+                
+                // Call selectLanguage for Hindi
+                addResult('Calling selectLanguage("hi", "हिंदी", "🇮🇳")...', 'info');
+                app.window.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                
+                // Check result
+                setTimeout(() => {
+                    const afterText = currentLang.textContent;
+                    addResult(`Language after: "${afterText}"`, 'info');
+                    
+                    if (afterText.includes('हिंदी')) {
+                        addResult('✅ SUCCESS! Hindi language selection works!', 'success');
+                        
+                        // Check if UI is translated
+                        const heroTitle = app.document.querySelector('[data-translate="hero-title"]');
+                        if (heroTitle && heroTitle.textContent.includes('कृषि')) {
+                            addResult('✅ UI is translated to Hindi!', 'success');
+                        } else {
+                            addResult('⚠️ Language changed but UI may not be fully translated', 'info');
+                        }
+                    } else {
+                        addResult('❌ FAILED: Language did not change to Hindi', 'error');
+                    }
+                }, 1500);
+                
+            } catch (error) {
+                addResult(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run test when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                addResult('🚀 Simple Hindi test ready', 'info');
+                addResult('Click "Test Hindi Selection" to check if it works', 'info');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

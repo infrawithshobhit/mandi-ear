@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Dropdown Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        iframe { width: 100%; height: 500px; border: 1px solid #ddd; margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🌐 Language Dropdown Test</h1>
+    
+    <button onclick="testDropdown()">Test Dropdown</button>
+    <button onclick="checkElements()">Check Elements</button>
+    <button onclick="simulateClick()">Simulate Click</button>
+    
+    <div id="results"></div>
+    
+    <iframe id="app" src="http://localhost:8001"></iframe>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function testDropdown() {
+            log('🧪 Testing dropdown functionality...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                // Check if function exists
+                if (typeof iframeWindow.toggleLanguageDropdown === 'function') {
+                    log('✅ toggleLanguageDropdown function found', 'success');
+                    
+                    // Call the function
+                    iframeWindow.toggleLanguageDropdown();
+                    log('✅ Function called successfully', 'success');
+                    
+                    // Check if dropdown opened
+                    setTimeout(() => {
+                        const dropdown = iframeDoc.getElementById('language-options');
+                        if (dropdown) {
+                            if (dropdown.classList.contains('show')) {
+                                log('✅ Dropdown opened successfully!', 'success');
+                            } else {
+                                log('❌ Dropdown did not open (no show class)', 'error');
+                            }
+                        } else {
+                            log('❌ Dropdown element not found', 'error');
+                        }
+                    }, 200);
+                    
+                } else {
+                    log('❌ toggleLanguageDropdown function not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function checkElements() {
+            log('🔍 Checking elements...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeDoc = iframe.contentDocument;
+                
+                const dropdown = iframeDoc.querySelector('.language-dropdown');
+                const options = iframeDoc.getElementById('language-options');
+                
+                if (dropdown) {
+                    log('✅ Language dropdown button found', 'success');
+                    const onclick = dropdown.getAttribute('onclick');
+                    log(`📊 Onclick attribute: ${onclick}`, 'info');
+                } else {
+                    log('❌ Language dropdown button not found', 'error');
+                }
+                
+                if (options) {
+                    log('✅ Language options container found', 'success');
+                    log(`📊 Options count: ${options.children.length}`, 'info');
+                    log(`📊 Current classes: ${options.className}`, 'info');
+                } else {
+                    log('❌ Language options container not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateClick() {
+            log('🖱️ Simulating click...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeDoc = iframe.contentDocument;
+                const dropdown = iframeDoc.querySelector('.language-dropdown');
+                
+                if (dropdown) {
+                    // Create and dispatch click event
+                    const clickEvent = new iframeDoc.defaultView.MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    dropdown.dispatchEvent(clickEvent);
+                    log('✅ Click event dispatched', 'success');
+                    
+                    // Check result
+                    setTimeout(() => {
+                        const options = iframeDoc.getElementById('language-options');
+                        if (options && options.classList.contains('show')) {
+                            log('✅ Dropdown opened via click simulation!', 'success');
+                        } else {
+                            log('❌ Click simulation did not open dropdown', 'error');
+                        }
+                    }, 200);
+                    
+                } else {
+                    log('❌ Dropdown button not found for click simulation', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check elements when iframe loads
+        document.getElementById('app').onload = function() {
+            setTimeout(checkElements, 500);
+        };
+    </script>
+</body>
+</html>

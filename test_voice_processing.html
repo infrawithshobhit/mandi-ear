@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Processing Test - MANDI EAR™</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c5530;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+        }
+        .test-button {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: linear-gradient(45deg, #218838, #1ea085);
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Voice Processing Test - MANDI EAR™</h1>
+        
+        <div class="test-section">
+            <h3>1. Test Voice Processing Modal</h3>
+            <p>Click the button below to test if the Voice Processing modal opens correctly:</p>
+            <button class="test-button" onclick="testVoiceModal()">
+                🎤 Open Voice Processing Modal
+            </button>
+            <div id="modal-test-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Test Voice API Endpoint</h3>
+            <p>Test the voice transcription API endpoint:</p>
+            <button class="test-button" onclick="testVoiceAPI()">
+                🔊 Test Voice API
+            </button>
+            <div id="api-test-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Test Voice Processing Functions</h3>
+            <p>Test if voice processing JavaScript functions are available:</p>
+            <button class="test-button" onclick="testVoiceFunctions()">
+                ⚙️ Test Voice Functions
+            </button>
+            <div id="function-test-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Go to Main Application</h3>
+            <p>Open the main MANDI EAR™ application to test Voice Processing:</p>
+            <button class="test-button" onclick="window.open('http://localhost:8001', '_blank')">
+                🌾 Open MANDI EAR™
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function testVoiceModal() {
+            const resultDiv = document.getElementById('modal-test-result');
+            resultDiv.style.display = 'block';
+            
+            // Test if we can access the main application
+            fetch('http://localhost:8001')
+                .then(response => response.text())
+                .then(html => {
+                    if (html.includes('voice-modal') && html.includes('initializeVoiceProcessing')) {
+                        resultDiv.innerHTML = '✅ <strong>SUCCESS:</strong> Voice Processing modal HTML and functions found in main application!';
+                        resultDiv.className = 'result';
+                    } else {
+                        resultDiv.innerHTML = '❌ <strong>ERROR:</strong> Voice Processing modal or functions not found in main application.';
+                        resultDiv.className = 'result error';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '❌ <strong>ERROR:</strong> Could not connect to main application: ' + error.message;
+                    resultDiv.className = 'result error';
+                });
+        }
+        
+        function testVoiceAPI() {
+            const resultDiv = document.getElementById('api-test-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '🔄 Testing Voice API endpoint...';
+            
+            fetch('http://localhost:8001/api/v1/voice/transcribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    audio_data: 'test_audio_data',
+                    language: 'hi'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.transcription && data.language) {
+                    resultDiv.innerHTML = `✅ <strong>SUCCESS:</strong> Voice API working!<br>
+                        <strong>Transcription:</strong> ${data.transcription}<br>
+                        <strong>Language:</strong> ${data.language}<br>
+                        <strong>Confidence:</strong> ${data.confidence}`;
+                    resultDiv.className = 'result';
+                } else {
+                    resultDiv.innerHTML = '❌ <strong>ERROR:</strong> Voice API returned unexpected response: ' + JSON.stringify(data);
+                    resultDiv.className = 'result error';
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = '❌ <strong>ERROR:</strong> Voice API test failed: ' + error.message;
+                resultDiv.className = 'result error';
+            });
+        }
+        
+        function testVoiceFunctions() {
+            const resultDiv = document.getElementById('function-test-result');
+            resultDiv.style.display = 'block';
+            
+            // Test if we can access the main application and check for functions
+            fetch('http://localhost:8001')
+                .then(response => response.text())
+                .then(html => {
+                    const functions = [
+                        'openVoiceProcessingTab',
+                        'initializeVoiceProcessing',
+                        'toggleRecording',
+                        'processVoiceQuery',
+                        'getVoiceTranslations'
+                    ];
+                    
+                    const foundFunctions = functions.filter(func => html.includes(func));
+                    const missingFunctions = functions.filter(func => !html.includes(func));
+                    
+                    let result = `✅ <strong>Found Functions (${foundFunctions.length}/${functions.length}):</strong><br>`;
+                    foundFunctions.forEach(func => {
+                        result += `&nbsp;&nbsp;✓ ${func}<br>`;
+                    });
+                    
+                    if (missingFunctions.length > 0) {
+                        result += `<br>❌ <strong>Missing Functions:</strong><br>`;
+                        missingFunctions.forEach(func => {
+                            result += `&nbsp;&nbsp;✗ ${func}<br>`;
+                        });
+                        resultDiv.className = 'result error';
+                    } else {
+                        result += '<br>🎉 All Voice Processing functions are present!';
+                        resultDiv.className = 'result';
+                    }
+                    
+                    resultDiv.innerHTML = result;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '❌ <strong>ERROR:</strong> Could not test functions: ' + error.message;
+                    resultDiv.className = 'result error';
+                });
+        }
+    </script>
+</body>
+</html>

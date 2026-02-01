@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Crop Planning - MANDI EAR™</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 20px; border: 2px solid #4CAF50; border-radius: 10px; }
+        .test-button { background: #4CAF50; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .test-button:hover { background: #45a049; }
+        .results { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; min-height: 100px; }
+        .success { color: #4CAF50; font-weight: bold; }
+        .error { color: #e74c3c; font-weight: bold; }
+        .loading { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Crop Planning Functionality Test</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: API Endpoint Test</h2>
+            <p>Testing the crop planning API endpoint directly</p>
+            <button class="test-button" onclick="testCropPlanningAPI()">Test API Endpoint</button>
+            <div id="api-results" class="results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 2: Modal Functionality Test</h2>
+            <p>Testing if the crop planning modal opens correctly</p>
+            <button class="test-button" onclick="testModalFunctionality()">Test Modal Opening</button>
+            <div id="modal-results" class="results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 3: Form Submission Test</h2>
+            <p>Testing the complete form submission workflow</p>
+            <button class="test-button" onclick="testFormSubmission()">Test Form Submission</button>
+            <div id="form-results" class="results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 4: Homepage Integration Test</h2>
+            <p>Testing if the crop planning button works on the main homepage</p>
+            <a href="http://localhost:8001" target="_blank" class="test-button">Open Main Homepage</a>
+            <div class="results">
+                <p>Instructions:</p>
+                <ol>
+                    <li>Click "Open Main Homepage" above</li>
+                    <li>Look for the "Crop Planning" feature card</li>
+                    <li>Click "Open Crop Planning" button</li>
+                    <li>Verify the modal opens with form fields</li>
+                    <li>Fill in the form and click "Get Recommendations"</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testCropPlanningAPI() {
+            const resultsDiv = document.getElementById('api-results');
+            resultsDiv.innerHTML = '<div class="loading">Testing API endpoint...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/crop-planning/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        farm_size: 5.0,
+                        soil_type: 'loamy',
+                        season: 'kharif',
+                        water_availability: 'medium',
+                        budget: 100000
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="success">✅ API Test Successful!</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ API Error: ${data.detail || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Network Error: ${error.message}</div>`;
+            }
+        }
+        
+        function testModalFunctionality() {
+            const resultsDiv = document.getElementById('modal-results');
+            
+            // Check if we can access the main page functions
+            try {
+                // Try to open a new window with the main page and test modal
+                const testWindow = window.open('http://localhost:8001', '_blank');
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">✅ Modal Test Instructions:</div>
+                    <ol>
+                        <li>A new window should have opened with the main MANDI EAR™ page</li>
+                        <li>Look for the "Crop Planning" feature card</li>
+                        <li>Click the "Open Crop Planning" button</li>
+                        <li>Verify that a modal opens with form fields</li>
+                        <li>Check that all form fields are present: Farm Size, Soil Type, Season, Water Availability, Investment Budget</li>
+                    </ol>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Could not open test window: ${error.message}</div>`;
+            }
+        }
+        
+        function testFormSubmission() {
+            const resultsDiv = document.getElementById('form-results');
+            
+            resultsDiv.innerHTML = `
+                <div class="success">✅ Form Submission Test Instructions:</div>
+                <ol>
+                    <li>Go to the main MANDI EAR™ page: <a href="http://localhost:8001" target="_blank">http://localhost:8001</a></li>
+                    <li>Click "Open Crop Planning" button</li>
+                    <li>Fill in the form with test data:
+                        <ul>
+                            <li>Farm Size: 5.0</li>
+                            <li>Soil Type: Loamy</li>
+                            <li>Season: Kharif (Monsoon)</li>
+                            <li>Water Availability: Medium (Partial Irrigation)</li>
+                            <li>Investment Budget: 100000</li>
+                        </ul>
+                    </li>
+                    <li>Click "Get Recommendations" button</li>
+                    <li>Verify that crop recommendations appear below the form</li>
+                    <li>Check that recommendations include: Rice and Cotton with details</li>
+                </ol>
+            `;
+        }
+        
+        // Auto-run API test on page load
+        window.onload = function() {
+            testCropPlanningAPI();
+        };
+    </script>
+</body>
+</html>

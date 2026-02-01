@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Language Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-container { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 12px 24px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        .step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #007bff; }
+    </style>
+</head>
+<body>
+    <h1>🇮🇳 Hindi Language Selection Fix Test</h1>
+    
+    <div class="test-container">
+        <h2>🧪 Automated Tests</h2>
+        <button onclick="runFullTest()">🚀 Run Complete Test</button>
+        <button onclick="testDropdownOnly()">📂 Test Dropdown Only</button>
+        <button onclick="testHindiOnly()">🇮🇳 Test Hindi Only</button>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>📋 Manual Test Steps</h2>
+        <div class="step">
+            <strong>Step 1:</strong> Click the language dropdown (globe icon next to "English")
+        </div>
+        <div class="step">
+            <strong>Step 2:</strong> Look for "🇮🇳 हिंदी (Hindi)" option in the dropdown
+        </div>
+        <div class="step">
+            <strong>Step 3:</strong> Click on the Hindi option
+        </div>
+        <div class="step">
+            <strong>Step 4:</strong> Verify that "English" changes to "हिंदी" in the dropdown button
+        </div>
+        <div class="step">
+            <strong>Step 5:</strong> Check that the page content translates to Hindi (e.g., "Agricultural Intelligence Platform" → "कृषि बुद्धिमत्ता मंच")
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>🖥️ MANDI EAR Application</h2>
+        <iframe id="app-frame" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function getAppFrame() {
+            return document.getElementById('app-frame');
+        }
+
+        function getAppWindow() {
+            return getAppFrame().contentWindow;
+        }
+
+        function getAppDocument() {
+            return getAppFrame().contentDocument;
+        }
+
+        function runFullTest() {
+            addResult('🚀 Starting complete Hindi language test...', 'info');
+            
+            setTimeout(() => testDropdownOnly(), 500);
+            setTimeout(() => testHindiOnly(), 2000);
+            setTimeout(() => generateReport(), 4000);
+        }
+
+        function testDropdownOnly() {
+            addResult('📂 Testing dropdown functionality...', 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // Check elements
+                const dropdown = appDoc.querySelector('.language-dropdown');
+                const options = appDoc.getElementById('language-options');
+                
+                if (!dropdown) {
+                    addResult('❌ Language dropdown button not found', 'error');
+                    return;
+                }
+                
+                if (!options) {
+                    addResult('❌ Language options container not found', 'error');
+                    return;
+                }
+                
+                addResult('✅ Dropdown elements found', 'success');
+                
+                // Test function exists
+                if (typeof appWindow.toggleLanguageDropdown !== 'function') {
+                    addResult('❌ toggleLanguageDropdown function not found', 'error');
+                    return;
+                }
+                
+                addResult('✅ toggleLanguageDropdown function exists', 'success');
+                
+                // Test dropdown click
+                const initialDisplay = appWindow.getComputedStyle(options).display;
+                addResult(`Initial dropdown state: ${initialDisplay}`, 'info');
+                
+                dropdown.click();
+                
+                setTimeout(() => {
+                    const newDisplay = appWindow.getComputedStyle(options).display;
+                    const hasShowClass = options.classList.contains('show');
+                    
+                    if (hasShowClass && newDisplay !== 'none') {
+                        addResult('✅ Dropdown opens successfully!', 'success');
+                    } else {
+                        addResult(`❌ Dropdown failed to open. Display: ${newDisplay}, Show class: ${hasShowClass}`, 'error');
+                    }
+                }, 300);
+                
+            } catch (error) {
+                addResult(`❌ Error testing dropdown: ${error.message}`, 'error');
+            }
+        }
+
+        function testHindiOnly() {
+            addResult('🇮🇳 Testing Hindi language selection...', 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // Ensure dropdown is open
+                const dropdown = appDoc.querySelector('.language-dropdown');
+                const options = appDoc.getElementById('language-options');
+                
+                if (!options.classList.contains('show')) {
+                    dropdown.click();
+                    addResult('📂 Opened dropdown for Hindi test', 'info');
+                }
+                
+                setTimeout(() => {
+                    // Find Hindi option
+                    const hindiOption = appDoc.querySelector('[onclick*="selectLanguage(\'hi\'"]');
+                    if (!hindiOption) {
+                        addResult('❌ Hindi option not found in dropdown', 'error');
+                        return;
+                    }
+                    
+                    addResult('✅ Hindi option found', 'success');
+                    
+                    // Get current language before selection
+                    const currentLangSpan = appDoc.getElementById('current-language');
+                    const beforeText = currentLangSpan ? currentLangSpan.textContent : 'Unknown';
+                    addResult(`Language before selection: "${beforeText}"`, 'info');
+                    
+                    // Click Hindi option
+                    hindiOption.click();
+                    addResult('🖱️ Hindi option clicked', 'info');
+                    
+                    setTimeout(() => {
+                        // Check language display change
+                        const afterText = currentLangSpan ? currentLangSpan.textContent : 'Unknown';
+                        addResult(`Language after selection: "${afterText}"`, 'info');
+                        
+                        if (afterText !== beforeText && afterText.includes('हिंदी')) {
+                            addResult('✅ Language display updated to Hindi!', 'success');
+                        } else {
+                            addResult('❌ Language display not updated properly', 'error');
+                        }
+                        
+                        // Check content translation
+                        setTimeout(() => {
+                            const heroTitle = appDoc.querySelector('[data-translate="hero-title"]');
+                            if (heroTitle) {
+                                const titleText = heroTitle.textContent;
+                                addResult(`Hero title: "${titleText}"`, 'info');
+                                
+                                if (titleText.includes('कृषि')) {
+                                    addResult('✅ Content successfully translated to Hindi!', 'success');
+                                } else {
+                                    addResult('❌ Content not translated to Hindi', 'error');
+                                }
+                            } else {
+                                addResult('⚠️ Hero title element not found for translation check', 'error');
+                            }
+                        }, 500);
+                        
+                    }, 500);
+                    
+                }, 500);
+                
+            } catch (error) {
+                addResult(`❌ Error testing Hindi selection: ${error.message}`, 'error');
+            }
+        }
+
+        function generateReport() {
+            addResult('📊 Generating test report...', 'info');
+            
+            const results = document.querySelectorAll('.result');
+            let successCount = 0;
+            let errorCount = 0;
+            
+            results.forEach(result => {
+                if (result.classList.contains('success')) successCount++;
+                if (result.classList.contains('error')) errorCount++;
+            });
+            
+            const totalTests = successCount + errorCount;
+            const successRate = totalTests > 0 ? (successCount / totalTests * 100).toFixed(1) : 0;
+            
+            addResult(`📈 Test Results: ${successCount} passed, ${errorCount} failed`, 'info');
+            addResult(`🎯 Success Rate: ${successRate}%`, successRate > 80 ? 'success' : 'error');
+            
+            if (successRate > 80) {
+                addResult('🎉 Hindi language selection is working correctly!', 'success');
+            } else {
+                addResult('⚠️ Hindi language selection needs more work', 'error');
+            }
+        }
+
+        // Auto-run test when iframe loads
+        document.getElementById('app-frame').onload = function() {
+            setTimeout(() => {
+                addResult('🌐 Application loaded, running basic test...', 'info');
+                testDropdownOnly();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

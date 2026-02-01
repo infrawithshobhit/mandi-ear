@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Dropdown Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Current Dropdown Issue Analysis</h1>
+    
+    <button onclick="testDropdownClick()">Test Dropdown Click</button>
+    <button onclick="testHindiSelection()">Test Hindi Selection</button>
+    <button onclick="checkJavaScriptErrors()">Check JS Errors</button>
+    
+    <div id="results"></div>
+    
+    <iframe id="app" src="http://localhost:8001"></iframe>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function testDropdownClick() {
+            log('🧪 Testing dropdown click...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                // Check if dropdown exists
+                const dropdown = iframeDoc.querySelector('.language-dropdown');
+                const options = iframeDoc.getElementById('language-options');
+                
+                if (!dropdown) {
+                    log('❌ Language dropdown button not found', 'error');
+                    return;
+                }
+                
+                if (!options) {
+                    log('❌ Language options container not found', 'error');
+                    return;
+                }
+                
+                log('✅ Dropdown elements found', 'success');
+                
+                // Check initial state
+                const initialDisplay = window.getComputedStyle(options).display;
+                log(`Initial dropdown display: ${initialDisplay}`, 'info');
+                
+                // Test click
+                dropdown.click();
+                
+                setTimeout(() => {
+                    const newDisplay = window.getComputedStyle(options).display;
+                    const hasShowClass = options.classList.contains('show');
+                    
+                    log(`After click - Display: ${newDisplay}, Show class: ${hasShowClass}`, 'info');
+                    
+                    if (hasShowClass && newDisplay !== 'none') {
+                        log('✅ Dropdown opened successfully!', 'success');
+                    } else {
+                        log('❌ Dropdown failed to open', 'error');
+                    }
+                }, 300);
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testHindiSelection() {
+            log('🇮🇳 Testing Hindi selection...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                // First open dropdown
+                const dropdown = iframeDoc.querySelector('.language-dropdown');
+                if (dropdown) {
+                    dropdown.click();
+                    log('✅ Dropdown clicked to open', 'success');
+                }
+                
+                setTimeout(() => {
+                    // Find Hindi option
+                    const hindiOption = iframeDoc.querySelector('[onclick*="selectLanguage(\'hi\'"]');
+                    if (!hindiOption) {
+                        log('❌ Hindi option not found', 'error');
+                        return;
+                    }
+                    
+                    log('✅ Hindi option found', 'success');
+                    
+                    // Get current language before click
+                    const currentLang = iframeDoc.getElementById('current-language');
+                    const beforeText = currentLang ? currentLang.textContent : 'Unknown';
+                    log(`Language before click: ${beforeText}`, 'info');
+                    
+                    // Click Hindi option
+                    hindiOption.click();
+                    log('✅ Hindi option clicked', 'success');
+                    
+                    setTimeout(() => {
+                        const afterText = currentLang ? currentLang.textContent : 'Unknown';
+                        log(`Language after click: ${afterText}`, 'info');
+                        
+                        if (afterText !== beforeText && afterText.includes('हिंदी')) {
+                            log('✅ Hindi selection successful!', 'success');
+                        } else {
+                            log('❌ Hindi selection failed', 'error');
+                        }
+                        
+                        // Check if content translated
+                        const heroTitle = iframeDoc.querySelector('[data-translate="hero-title"]');
+                        if (heroTitle) {
+                            const titleText = heroTitle.textContent;
+                            log(`Hero title text: ${titleText}`, 'info');
+                            if (titleText.includes('कृषि')) {
+                                log('✅ Content translated to Hindi!', 'success');
+                            } else {
+                                log('❌ Content not translated', 'error');
+                            }
+                        }
+                        
+                    }, 500);
+                    
+                }, 500);
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function checkJavaScriptErrors() {
+            log('🔍 Checking for JavaScript errors...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                
+                // Check if functions exist
+                const functions = ['toggleLanguageDropdown', 'selectLanguage', 'updateUILanguage'];
+                functions.forEach(funcName => {
+                    if (typeof iframeWindow[funcName] === 'function') {
+                        log(`✅ Function ${funcName} exists`, 'success');
+                    } else {
+                        log(`❌ Function ${funcName} missing`, 'error');
+                    }
+                });
+                
+                // Check for duplicate functions
+                const funcString = iframeWindow.document.documentElement.innerHTML;
+                const toggleCount = (funcString.match(/function toggleLanguageDropdown/g) || []).length;
+                if (toggleCount > 1) {
+                    log(`⚠️ Found ${toggleCount} toggleLanguageDropdown functions (duplicate issue!)`, 'error');
+                } else {
+                    log(`✅ Only 1 toggleLanguageDropdown function found`, 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ Error checking functions: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic test when iframe loads
+        document.getElementById('app').onload = function() {
+            setTimeout(() => {
+                log('🚀 Running automatic analysis...', 'info');
+                checkJavaScriptErrors();
+                setTimeout(testDropdownClick, 1000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

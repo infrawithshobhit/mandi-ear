@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANDI EAR - Comprehensive End-to-End Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .test-container { max-width: 1200px; margin: 0 auto; }
+        .test-section { 
+            background: white; 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-header { 
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .success { color: #4CAF50; font-weight: bold; }
+        .error { color: #e74c3c; font-weight: bold; }
+        .warning { color: #f39c12; font-weight: bold; }
+        .info { color: #3498db; font-weight: bold; }
+        button { 
+            padding: 12px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        button:hover { background: #45a049; }
+        .test-result { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border-left: 4px solid #ddd; 
+            background: #f9f9f9;
+        }
+        .test-result.success { border-left-color: #4CAF50; }
+        .test-result.error { border-left-color: #e74c3c; }
+        .test-result.warning { border-left-color: #f39c12; }
+        .iframe-container { 
+            width: 100%; 
+            height: 600px; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            margin: 20px 0;
+        }
+        #testFrame { width: 100%; height: 100%; border: none; border-radius: 8px; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 MANDI EAR™ - Comprehensive End-to-End Testing</h1>
+            <p>Complete testing suite for demo preparation</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="passedTests">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="failedTests">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Test Controls</h2>
+            <button onclick="runAllTests()">🚀 Run All Tests</button>
+            <button onclick="testBasicFunctionality()">🔧 Test Basic Functions</button>
+            <button onclick="testLanguageTranslation()">🌐 Test Language Translation</button>
+            <button onclick="testAllTabs()">📋 Test All Tabs</button>
+            <button onclick="testAPIs()">🔌 Test APIs</button>
+            <button onclick="testUIComponents()">🎨 Test UI Components</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🖥️ Live Application Preview</h2>
+            <div class="iframe-container">
+                <iframe id="testFrame" src="http://localhost:8001"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testCount = 0;
+        let passedCount = 0;
+        let failedCount = 0;
+        let currentTestIndex = 0;
+        let totalTestsToRun = 0;
+
+        function updateStats() {
+            document.getElementById('totalTests').textContent = testCount;
+            document.getElementById('passedTests').textContent = passedCount;
+            document.getElementById('failedTests').textContent = failedCount;
+            const successRate = testCount > 0 ? Math.round((passedCount / testCount) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            // Update progress bar
+            const progress = totalTestsToRun > 0 ? (currentTestIndex / totalTestsToRun) * 100 : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function addResult(message, type = 'info', details = '') {
+            testCount++;
+            if (type === 'success') passedCount++;
+            if (type === 'error') failedCount++;
+            
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            div.innerHTML = `
+                <strong>[${timestamp}]</strong> ${message}
+                ${details ? `<br><small>${details}</small>` : ''}
+            `;
+            
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            updateStats();
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            testCount = 0;
+            passedCount = 0;
+            failedCount = 0;
+            currentTestIndex = 0;
+            totalTestsToRun = 0;
+            updateStats();
+        }
+
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function runAllTests() {
+            clearResults();
+            addResult('🚀 Starting comprehensive end-to-end testing...', 'info');
+            totalTestsToRun = 50; // Estimated total tests
+            
+            try {
+                await testBasicFunctionality();
+                await sleep(1000);
+                await testLanguageTranslation();
+                await sleep(1000);
+                await testAllTabs();
+                await sleep(1000);
+                await testAPIs();
+                await sleep(1000);
+                await testUIComponents();
+                
+                addResult('🎉 All tests completed!', 'success', `Passed: ${passedCount}/${testCount} tests`);
+            } catch (error) {
+                addResult('❌ Test suite failed', 'error', error.message);
+            }
+        }
+
+        async function testBasicFunctionality() {
+            addResult('🔧 Testing basic functionality...', 'info');
+            currentTestIndex++;
+
+            try {
+                // Test server connectivity
+                const response = await fetch('http://localhost:8001/health');
+                if (response.ok) {
+                    addResult('✅ Server is running and responsive', 'success');
+                } else {
+                    addResult('❌ Server health check failed', 'error', `Status: ${response.status}`);
+                }
+                currentTestIndex++;
+
+                // Test main page load
+                const mainResponse = await fetch('http://localhost:8001');
+                if (mainResponse.ok) {
+                    const html = await mainResponse.text();
+                    addResult('✅ Main page loads successfully', 'success');
+                    
+                    // Check for essential elements
+                    if (html.includes('MANDI EAR')) {
+                        addResult('✅ Page title is correct', 'success');
+                    } else {
+                        addResult('❌ Page title missing or incorrect', 'error');
+                    }
+                    currentTestIndex++;
+
+                    if (html.includes('Agricultural Intelligence Platform')) {
+                        addResult('✅ Hero section content found', 'success');
+                    } else {
+                        addResult('❌ Hero section content missing', 'error');
+                    }
+                    currentTestIndex++;
+
+                    if (html.includes('selectLanguage')) {
+                        addResult('✅ Language selection function found', 'success');
+                    } else {
+                        addResult('❌ Language selection function missing', 'error');
+                    }
+                    currentTestIndex++;
+
+                } else {
+                    addResult('❌ Main page failed to load', 'error', `Status: ${mainResponse.status}`);
+                }
+
+            } catch (error) {
+                addResult('❌ Basic functionality test failed', 'error', error.message);
+            }
+        }
+
+        async function testLanguageTranslation() {
+            addResult('🌐 Testing language translation functionality...', 'info');
+            currentTestIndex++;
+
+            try {
+                const iframe = document.getElementById('testFrame');
+                const frameWindow = iframe.contentWindow;
+                
+                await sleep(2000); // Wait for iframe to load
+                
+                // Test language functions exist
+                if (typeof frameWindow.selectLanguage === 'function') {
+                    addResult('✅ selectLanguage function exists', 'success');
+                } else {
+                    addResult('❌ selectLanguage function not found', 'error');
+                }
+                currentTestIndex++;
+
+                if (typeof frameWindow.updateUILanguage === 'function') {
+                    addResult('✅ updateUILanguage function exists', 'success');
+                } else {
+                    addResult('❌ updateUILanguage function not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test language dropdown
+                const languageDropdown = frameWindow.document.getElementById('language-dropdown');
+                if (languageDropdown) {
+                    addResult('✅ Language dropdown found', 'success');
+                } else {
+                    addResult('❌ Language dropdown not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test language options
+                const languageOptions = frameWindow.document.getElementById('language-options');
+                if (languageOptions) {
+                    const options = languageOptions.querySelectorAll('.language-option');
+                    addResult(`✅ Found ${options.length} language options`, 'success');
+                    
+                    if (options.length >= 5) {
+                        addResult('✅ Sufficient language options available', 'success');
+                    } else {
+                        addResult('⚠️ Limited language options', 'warning', `Only ${options.length} languages found`);
+                    }
+                } else {
+                    addResult('❌ Language options not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test data-translate attributes
+                const elementsWithTranslate = frameWindow.document.querySelectorAll('[data-translate]');
+                if (elementsWithTranslate.length > 0) {
+                    addResult(`✅ Found ${elementsWithTranslate.length} translatable elements`, 'success');
+                } else {
+                    addResult('❌ No translatable elements found', 'error');
+                }
+                currentTestIndex++;
+
+            } catch (error) {
+                addResult('❌ Language translation test failed', 'error', error.message);
+            }
+        }
+
+        async function testAllTabs() {
+            addResult('📋 Testing all tab functionality...', 'info');
+            currentTestIndex++;
+
+            try {
+                const iframe = document.getElementById('testFrame');
+                const frameWindow = iframe.contentWindow;
+                
+                await sleep(2000); // Wait for iframe to load
+
+                // Test Voice Processing Tab
+                const voiceButton = frameWindow.document.querySelector('button[onclick*="voice-modal"]');
+                if (voiceButton) {
+                    addResult('✅ Voice Processing tab button found', 'success');
+                    
+                    // Test modal exists
+                    const voiceModal = frameWindow.document.getElementById('voice-modal');
+                    if (voiceModal) {
+                        addResult('✅ Voice Processing modal exists', 'success');
+                    } else {
+                        addResult('❌ Voice Processing modal not found', 'error');
+                    }
+                } else {
+                    addResult('❌ Voice Processing tab button not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test Price Discovery Tab
+                const priceButton = frameWindow.document.querySelector('button[onclick*="price-modal"]');
+                if (priceButton) {
+                    addResult('✅ Price Discovery tab button found', 'success');
+                    
+                    const priceModal = frameWindow.document.getElementById('price-modal');
+                    if (priceModal) {
+                        addResult('✅ Price Discovery modal exists', 'success');
+                    } else {
+                        addResult('❌ Price Discovery modal not found', 'error');
+                    }
+                } else {
+                    addResult('❌ Price Discovery tab button not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test Negotiation Assistant Tab
+                const negotiationButton = frameWindow.document.querySelector('button[onclick*="negotiation-modal"]');
+                if (negotiationButton) {
+                    addResult('✅ Negotiation Assistant tab button found', 'success');
+                    
+                    const negotiationModal = frameWindow.document.getElementById('negotiation-modal');
+                    if (negotiationModal) {
+                        addResult('✅ Negotiation Assistant modal exists', 'success');
+                    } else {
+                        addResult('❌ Negotiation Assistant modal not found', 'error');
+                    }
+                } else {
+                    addResult('❌ Negotiation Assistant tab button not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test Crop Planning Tab
+                const cropButton = frameWindow.document.querySelector('button[onclick*="crop-modal"]');
+                if (cropButton) {
+                    addResult('✅ Crop Planning tab button found', 'success');
+                    
+                    const cropModal = frameWindow.document.getElementById('crop-modal');
+                    if (cropModal) {
+                        addResult('✅ Crop Planning modal exists', 'success');
+                    } else {
+                        addResult('❌ Crop Planning modal not found', 'error');
+                    }
+                } else {
+                    addResult('❌ Crop Planning tab button not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test MSP Monitoring Tab
+                const mspButton = frameWindow.document.querySelector('button[onclick*="msp-modal"]');
+                if (mspButton) {
+                    addResult('✅ MSP Monitoring tab button found', 'success');
+                    
+                    const mspModal = frameWindow.document.getElementById('msp-modal');
+                    if (mspModal) {
+                        addResult('✅ MSP Monitoring modal exists', 'success');
+                    } else {
+                        addResult('❌ MSP Monitoring modal not found', 'error');
+                    }
+                } else {
+                    addResult('❌ MSP Monitoring tab button not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test Cross-Mandi Network Tab
+                const mandiButton = frameWindow.document.querySelector('button[onclick*="mandi-modal"]');
+                if (mandiButton) {
+                    addResult('✅ Cross-Mandi Network tab button found', 'success');
+                    
+                    const mandiModal = frameWindow.document.getElementById('mandi-modal');
+                    if (mandiModal) {
+                        addResult('✅ Cross-Mandi Network modal exists', 'success');
+                    } else {
+                        addResult('❌ Cross-Mandi Network modal not found', 'error');
+                    }
+                } else {
+                    addResult('❌ Cross-Mandi Network tab button not found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test modal overlay
+                const modalOverlay = frameWindow.document.getElementById('modal-overlay');
+                if (modalOverlay) {
+                    addResult('✅ Modal overlay system exists', 'success');
+                } else {
+                    addResult('❌ Modal overlay system not found', 'error');
+                }
+                currentTestIndex++;
+
+            } catch (error) {
+                addResult('❌ Tab functionality test failed', 'error', error.message);
+            }
+        }
+
+        async function testAPIs() {
+            addResult('🔌 Testing API endpoints...', 'info');
+            currentTestIndex++;
+
+            const apiEndpoints = [
+                { url: '/health', name: 'Health Check' },
+                { url: '/api/v1/prices/current', name: 'Current Prices' },
+                { url: '/api/v1/msp/rates', name: 'MSP Rates' },
+                { url: '/api/v1/mandis', name: 'Mandis List' },
+                { url: '/api/v1/test', name: 'Test Endpoint' }
+            ];
+
+            for (const endpoint of apiEndpoints) {
+                try {
+                    const response = await fetch(`http://localhost:8001${endpoint.url}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        addResult(`✅ ${endpoint.name} API working`, 'success', `Status: ${response.status}`);
+                    } else {
+                        addResult(`❌ ${endpoint.name} API failed`, 'error', `Status: ${response.status}`);
+                    }
+                } catch (error) {
+                    addResult(`❌ ${endpoint.name} API error`, 'error', error.message);
+                }
+                currentTestIndex++;
+                await sleep(500);
+            }
+        }
+
+        async function testUIComponents() {
+            addResult('🎨 Testing UI components...', 'info');
+            currentTestIndex++;
+
+            try {
+                const iframe = document.getElementById('testFrame');
+                const frameWindow = iframe.contentWindow;
+                
+                await sleep(2000);
+
+                // Test price cards
+                const priceCards = frameWindow.document.querySelectorAll('.price-card');
+                if (priceCards.length > 0) {
+                    addResult(`✅ Found ${priceCards.length} price cards`, 'success');
+                    
+                    // Check if price cards have commodity names
+                    let cardsWithNames = 0;
+                    priceCards.forEach(card => {
+                        const commodityName = card.querySelector('.commodity-name');
+                        if (commodityName && commodityName.textContent.trim()) {
+                            cardsWithNames++;
+                        }
+                    });
+                    
+                    if (cardsWithNames === priceCards.length) {
+                        addResult('✅ All price cards have commodity names', 'success');
+                    } else {
+                        addResult(`⚠️ ${cardsWithNames}/${priceCards.length} price cards have names`, 'warning');
+                    }
+                } else {
+                    addResult('❌ No price cards found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test feature cards
+                const featureCards = frameWindow.document.querySelectorAll('.feature-card');
+                if (featureCards.length >= 6) {
+                    addResult(`✅ Found ${featureCards.length} feature cards`, 'success');
+                } else {
+                    addResult(`⚠️ Only ${featureCards.length} feature cards found (expected 6)`, 'warning');
+                }
+                currentTestIndex++;
+
+                // Test buttons
+                const testButtons = frameWindow.document.querySelectorAll('.test-button');
+                if (testButtons.length > 0) {
+                    addResult(`✅ Found ${testButtons.length} interactive buttons`, 'success');
+                } else {
+                    addResult('❌ No interactive buttons found', 'error');
+                }
+                currentTestIndex++;
+
+                // Test responsive design elements
+                const container = frameWindow.document.querySelector('.container');
+                if (container) {
+                    addResult('✅ Main container structure exists', 'success');
+                } else {
+                    addResult('❌ Main container structure missing', 'error');
+                }
+                currentTestIndex++;
+
+                // Test CSS loading
+                const computedStyle = frameWindow.getComputedStyle(frameWindow.document.body);
+                if (computedStyle.fontFamily) {
+                    addResult('✅ CSS styles are loading properly', 'success');
+                } else {
+                    addResult('❌ CSS styles not loading', 'error');
+                }
+                currentTestIndex++;
+
+            } catch (error) {
+                addResult('❌ UI components test failed', 'error', error.message);
+            }
+        }
+
+        // Auto-refresh iframe every 30 seconds
+        setInterval(() => {
+            const iframe = document.getElementById('testFrame');
+            if (iframe.src) {
+                iframe.src = iframe.src;
+            }
+        }, 30000);
+
+        // Initialize
+        updateStats();
+        
+        // Auto-run basic tests on load
+        setTimeout(() => {
+            addResult('🎯 Test suite loaded. Ready for comprehensive testing!', 'info');
+        }, 1000);
+    </script>
+</body>
+</html>

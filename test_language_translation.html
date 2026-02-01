@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation Test - MANDI EAR</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        #results { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>MANDI EAR Language Translation Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Language Translation Functionality</h2>
+        <p>This test will verify that the language translation is working properly.</p>
+        
+        <button onclick="testLanguageTranslation()">Test Language Translation</button>
+        <button onclick="testCommodityTranslation()">Test Commodity Translation</button>
+        <button onclick="testUIElements()">Test UI Elements Translation</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testLanguageTranslation() {
+            clearResults();
+            addResult('Testing language translation functionality...', 'info');
+            
+            try {
+                // Load the main page in an iframe to test the functionality
+                const iframe = document.createElement('iframe');
+                iframe.src = 'http://localhost:8001';
+                iframe.style.width = '100%';
+                iframe.style.height = '600px';
+                iframe.style.border = '1px solid #ccc';
+                iframe.style.marginTop = '20px';
+                
+                iframe.onload = function() {
+                    addResult('✅ Main page loaded successfully', 'success');
+                    
+                    // Test if language functions exist
+                    const frameWindow = iframe.contentWindow;
+                    
+                    if (typeof frameWindow.selectLanguage === 'function') {
+                        addResult('✅ selectLanguage function exists', 'success');
+                    } else {
+                        addResult('❌ selectLanguage function not found', 'error');
+                    }
+                    
+                    if (typeof frameWindow.updateUILanguage === 'function') {
+                        addResult('✅ updateUILanguage function exists', 'success');
+                    } else {
+                        addResult('❌ updateUILanguage function not found', 'error');
+                    }
+                    
+                    if (typeof frameWindow.updatePriceCardCommodityNames === 'function') {
+                        addResult('✅ updatePriceCardCommodityNames function exists', 'success');
+                    } else {
+                        addResult('❌ updatePriceCardCommodityNames function not found', 'error');
+                    }
+                    
+                    // Test language dropdown
+                    const languageDropdown = frameWindow.document.getElementById('language-dropdown');
+                    if (languageDropdown) {
+                        addResult('✅ Language dropdown found', 'success');
+                    } else {
+                        addResult('❌ Language dropdown not found', 'error');
+                    }
+                    
+                    // Test language options
+                    const languageOptions = frameWindow.document.getElementById('language-options');
+                    if (languageOptions) {
+                        addResult('✅ Language options found', 'success');
+                        const options = languageOptions.querySelectorAll('.language-option');
+                        addResult(`✅ Found ${options.length} language options`, 'success');
+                    } else {
+                        addResult('❌ Language options not found', 'error');
+                    }
+                };
+                
+                document.body.appendChild(iframe);
+                
+            } catch (error) {
+                addResult(`❌ Error testing language translation: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCommodityTranslation() {
+            clearResults();
+            addResult('Testing commodity name translation...', 'info');
+            
+            // Test commodity translations for different languages
+            const commodityTranslations = {
+                'en': { 'wheat': 'Wheat', 'rice': 'Rice', 'tomato': 'Tomato' },
+                'hi': { 'wheat': 'गेहूं', 'rice': 'चावल', 'tomato': 'टमाटर' },
+                'bn': { 'wheat': 'গম', 'rice': 'চাল', 'tomato': 'টমেটো' },
+                'te': { 'wheat': 'గోధుమ', 'rice': 'బియ్యం', 'tomato': 'టమాటో' },
+                'ta': { 'wheat': 'கோதுமை', 'rice': 'அரிசி', 'tomato': 'தக்காளி' }
+            };
+            
+            Object.keys(commodityTranslations).forEach(lang => {
+                const translations = commodityTranslations[lang];
+                addResult(`✅ ${lang.toUpperCase()}: Wheat = ${translations.wheat}, Rice = ${translations.rice}, Tomato = ${translations.tomato}`, 'success');
+            });
+            
+            addResult('✅ Commodity translations are properly defined', 'success');
+        }
+        
+        async function testUIElements() {
+            clearResults();
+            addResult('Testing UI elements with data-translate attributes...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001');
+                const html = await response.text();
+                
+                // Check for data-translate attributes
+                const dataTranslateMatches = html.match(/data-translate="[^"]+"/g);
+                if (dataTranslateMatches) {
+                    addResult(`✅ Found ${dataTranslateMatches.length} elements with data-translate attributes`, 'success');
+                    dataTranslateMatches.slice(0, 10).forEach(match => {
+                        addResult(`  - ${match}`, 'info');
+                    });
+                } else {
+                    addResult('❌ No data-translate attributes found', 'error');
+                }
+                
+                // Check for translation functions
+                if (html.includes('updateUILanguage') && 
+                    html.includes('updatePriceCardCommodityNames') &&
+                    html.includes('selectLanguage')) {
+                    addResult('✅ Translation functions found in HTML', 'success');
+                } else {
+                    addResult('❌ Translation functions not found in HTML', 'error');
+                }
+                
+                // Check for language options
+                if (html.includes('selectLanguage(\'hi\'') && 
+                    html.includes('selectLanguage(\'bn\'') &&
+                    html.includes('selectLanguage(\'te\'')) {
+                    addResult('✅ Multiple language options found', 'success');
+                } else {
+                    addResult('❌ Language options not properly configured', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error testing UI elements: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

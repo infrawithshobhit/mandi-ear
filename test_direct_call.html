@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Function Call Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 10px 0; }
+        .result { padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        iframe { width: 100%; height: 500px; border: 1px solid #ddd; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Direct Function Call Test</h1>
+    
+    <div class="test-container">
+        <h3>Test Controls</h3>
+        <button onclick="testDirectCall()">🎯 Test Direct selectLanguage Call</button>
+        <button onclick="testDropdownToggle()">🔽 Test Dropdown Toggle</button>
+        <button onclick="testClickSimulation()">👆 Test Click Simulation</button>
+        <button onclick="clearResults()">🧹 Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <iframe id="app" src="http://localhost:8001"></iframe>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function getAppContext() {
+            const iframe = document.getElementById('app');
+            return {
+                window: iframe.contentWindow,
+                document: iframe.contentDocument
+            };
+        }
+
+        async function testDirectCall() {
+            addResult('🎯 Testing direct selectLanguage function call...', 'info');
+            
+            try {
+                const app = getAppContext();
+                
+                // Wait for app to load
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Check if function exists
+                if (typeof app.window.selectLanguage !== 'function') {
+                    addResult('❌ selectLanguage function not found', 'error');
+                    return;
+                }
+                
+                addResult('✅ selectLanguage function found', 'success');
+                
+                // Get current language before
+                const currentLangElement = app.document.getElementById('current-language');
+                const beforeText = currentLangElement ? currentLangElement.textContent : 'not found';
+                addResult(`Language before: "${beforeText}"`, 'info');
+                
+                // Call the function directly
+                addResult('Calling selectLanguage("hi", "हिंदी", "🇮🇳")...', 'info');
+                
+                // Set up console logging to capture any errors
+                const originalConsoleError = app.window.console.error;
+                const originalConsoleLog = app.window.console.log;
+                
+                app.window.console.error = function(...args) {
+                    addResult(`Console Error: ${args.join(' ')}`, 'error');
+                    originalConsoleError.apply(this, args);
+                };
+                
+                app.window.console.log = function(...args) {
+                    addResult(`Console Log: ${args.join(' ')}`, 'info');
+                    originalConsoleLog.apply(this, args);
+                };
+                
+                // Call the function
+                app.window.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                
+                // Check result after delay
+                setTimeout(() => {
+                    const afterText = currentLangElement ? currentLangElement.textContent : 'not found';
+                    addResult(`Language after: "${afterText}"`, 'info');
+                    
+                    if (afterText.includes('हिंदी')) {
+                        addResult('✅ SUCCESS: Language changed to Hindi!', 'success');
+                        
+                        // Check if UI elements are translated
+                        const heroTitle = app.document.querySelector('[data-translate="hero-title"]');
+                        if (heroTitle) {
+                            addResult(`Hero title text: "${heroTitle.textContent}"`, 'info');
+                            if (heroTitle.textContent.includes('कृषि')) {
+                                addResult('✅ UI elements are translated to Hindi', 'success');
+                            } else {
+                                addResult('⚠️ UI elements may not be fully translated', 'error');
+                            }
+                        }
+                    } else {
+                        addResult('❌ FAILED: Language did not change', 'error');
+                    }
+                    
+                    // Restore console functions
+                    app.window.console.error = originalConsoleError;
+                    app.window.console.log = originalConsoleLog;
+                }, 1500);
+                
+            } catch (error) {
+                addResult(`❌ Error during test: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDropdownToggle() {
+            addResult('🔽 Testing dropdown toggle...', 'info');
+            
+            try {
+                const app = getAppContext();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (typeof app.window.toggleLanguageDropdown !== 'function') {
+                    addResult('❌ toggleLanguageDropdown function not found', 'error');
+                    return;
+                }
+                
+                addResult('✅ toggleLanguageDropdown function found', 'success');
+                
+                const dropdown = app.document.getElementById('language-options');
+                if (!dropdown) {
+                    addResult('❌ Language options dropdown not found', 'error');
+                    return;
+                }
+                
+                const beforeState = dropdown.classList.contains('show');
+                addResult(`Dropdown state before: ${beforeState ? 'open' : 'closed'}`, 'info');
+                
+                // Toggle dropdown
+                app.window.toggleLanguageDropdown();
+                
+                setTimeout(() => {
+                    const afterState = dropdown.classList.contains('show');
+                    addResult(`Dropdown state after: ${afterState ? 'open' : 'closed'}`, 'info');
+                    
+                    if (beforeState !== afterState) {
+                        addResult('✅ Dropdown toggle worked!', 'success');
+                    } else {
+                        addResult('❌ Dropdown toggle failed', 'error');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                addResult(`❌ Error during dropdown test: ${error.message}`, 'error');
+            }
+        }
+
+        async function testClickSimulation() {
+            addResult('👆 Testing click simulation...', 'info');
+            
+            try {
+                const app = getAppContext();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Find the Hindi language option
+                const hindiOption = app.document.querySelector('.language-option[onclick*="hi"]');
+                if (!hindiOption) {
+                    addResult('❌ Hindi language option not found', 'error');
+                    return;
+                }
+                
+                addResult('✅ Hindi language option found', 'success');
+                addResult(`Option text: "${hindiOption.textContent.trim()}"`, 'info');
+                addResult(`Option onclick: "${hindiOption.getAttribute('onclick')}"`, 'info');
+                
+                // Get current language before click
+                const currentLangElement = app.document.getElementById('current-language');
+                const beforeText = currentLangElement ? currentLangElement.textContent : 'not found';
+                addResult(`Language before click: "${beforeText}"`, 'info');
+                
+                // Simulate click
+                addResult('Simulating click on Hindi option...', 'info');
+                hindiOption.click();
+                
+                // Check result
+                setTimeout(() => {
+                    const afterText = currentLangElement ? currentLangElement.textContent : 'not found';
+                    addResult(`Language after click: "${afterText}"`, 'info');
+                    
+                    if (afterText.includes('हिंदी')) {
+                        addResult('✅ SUCCESS: Click simulation worked!', 'success');
+                    } else {
+                        addResult('❌ FAILED: Click simulation did not work', 'error');
+                    }
+                }, 1500);
+                
+            } catch (error) {
+                addResult(`❌ Error during click simulation: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                addResult('🚀 Direct Function Call Test Ready', 'info');
+                addResult('Click the test buttons to check language functionality', 'info');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

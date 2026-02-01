@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Language Dropdown Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .language-selector { position: relative; display: inline-block; }
+        .language-dropdown {
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 25px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .language-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 15px;
+            margin-top: 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .language-options.show { display: block; }
+        .language-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .language-option:hover { background: rgba(76, 175, 80, 0.1); }
+        .language-option:last-child { border-bottom: none; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Language Dropdown Test</h1>
+    
+    <div class="test-result info">
+        <h3>Simple Test Dropdown</h3>
+        <div class="language-selector">
+            <div class="language-dropdown" onclick="toggleTest()">
+                <span>🌐</span>
+                <span id="current-lang">English</span>
+                <span>▼</span>
+            </div>
+            <div class="language-options" id="test-options">
+                <div class="language-option" onclick="selectTest('en', 'English')">
+                    <span>🇺🇸</span>
+                    <span>English</span>
+                </div>
+                <div class="language-option" onclick="selectTest('hi', 'हिंदी')">
+                    <span>🇮🇳</span>
+                    <span>हिंदी</span>
+                </div>
+                <div class="language-option" onclick="selectTest('bn', 'বাংলা')">
+                    <span>🇧🇩</span>
+                    <span>বাংলা</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-result info">
+        <h3>Test Controls</h3>
+        <button onclick="testMainApp()">Test Main App Dropdown</button>
+        <button onclick="checkMainAppFunctions()">Check Main App Functions</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div id="log"></div>
+    
+    <div class="test-result info">
+        <h3>Main App (in iframe)</h3>
+        <iframe id="main-app" src="http://localhost:8001" width="100%" height="600" style="border: 1px solid #ccc;"></iframe>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(div);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        // Simple test dropdown functions
+        function toggleTest() {
+            log('Simple dropdown clicked', 'info');
+            const dropdown = document.getElementById('test-options');
+            dropdown.classList.toggle('show');
+            log('Simple dropdown toggled: ' + (dropdown.classList.contains('show') ? 'OPEN' : 'CLOSED'), 'success');
+        }
+        
+        function selectTest(code, name) {
+            log(`Selected: ${name} (${code})`, 'success');
+            document.getElementById('current-lang').textContent = name;
+            document.getElementById('test-options').classList.remove('show');
+        }
+        
+        // Test main app functions
+        function testMainApp() {
+            log('Testing main app dropdown...', 'info');
+            
+            const iframe = document.getElementById('main-app');
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                if (!iframeWindow || !iframeDoc) {
+                    log('❌ Cannot access iframe content', 'error');
+                    return;
+                }
+                
+                // Check if function exists
+                if (typeof iframeWindow.toggleLanguageDropdown === 'function') {
+                    log('✅ toggleLanguageDropdown function found', 'success');
+                    
+                    // Try to call it
+                    try {
+                        iframeWindow.toggleLanguageDropdown();
+                        log('✅ toggleLanguageDropdown called successfully', 'success');
+                        
+                        // Check if dropdown opened
+                        setTimeout(() => {
+                            const dropdown = iframeDoc.getElementById('language-options');
+                            if (dropdown) {
+                                if (dropdown.classList.contains('show')) {
+                                    log('✅ Language dropdown opened!', 'success');
+                                } else {
+                                    log('❌ Language dropdown did not open (no show class)', 'error');
+                                    log('Dropdown classes: ' + dropdown.className, 'info');
+                                }
+                            } else {
+                                log('❌ Language dropdown element not found', 'error');
+                            }
+                        }, 100);
+                        
+                    } catch (error) {
+                        log('❌ Error calling toggleLanguageDropdown: ' + error.message, 'error');
+                    }
+                } else {
+                    log('❌ toggleLanguageDropdown function not found', 'error');
+                    log('Available functions: ' + Object.getOwnPropertyNames(iframeWindow).filter(name => typeof iframeWindow[name] === 'function').slice(0, 10).join(', '), 'info');
+                }
+                
+            } catch (error) {
+                log('❌ Error accessing iframe: ' + error.message, 'error');
+            }
+        }
+        
+        function checkMainAppFunctions() {
+            log('Checking main app functions...', 'info');
+            
+            const iframe = document.getElementById('main-app');
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                if (!iframeWindow || !iframeDoc) {
+                    log('❌ Cannot access iframe content', 'error');
+                    return;
+                }
+                
+                // Check critical functions
+                const functions = [
+                    'toggleLanguageDropdown',
+                    'selectLanguage',
+                    'openVoiceProcessingTab',
+                    'openModal'
+                ];
+                
+                functions.forEach(func => {
+                    if (typeof iframeWindow[func] === 'function') {
+                        log(`✅ ${func} function exists`, 'success');
+                    } else {
+                        log(`❌ ${func} function missing`, 'error');
+                    }
+                });
+                
+                // Check critical elements
+                const elements = [
+                    'language-options',
+                    'current-language',
+                    'language-dropdown'
+                ];
+                
+                elements.forEach(elementId => {
+                    const element = iframeDoc.getElementById(elementId);
+                    if (element) {
+                        log(`✅ Element ${elementId} exists`, 'success');
+                    } else {
+                        log(`❌ Element ${elementId} missing`, 'error');
+                    }
+                });
+                
+                // Check if language dropdown is visible
+                const langDropdown = iframeDoc.querySelector('.language-dropdown');
+                if (langDropdown) {
+                    const style = iframeWindow.getComputedStyle(langDropdown);
+                    log(`Language dropdown display: ${style.display}, visibility: ${style.visibility}`, 'info');
+                } else {
+                    log('❌ Language dropdown element not found with class selector', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ Error checking functions: ' + error.message, 'error');
+            }
+        }
+        
+        // Auto-test when iframe loads
+        document.getElementById('main-app').onload = function() {
+            log('📱 Main app loaded', 'success');
+            setTimeout(() => {
+                log('🔍 Auto-checking functions...', 'info');
+                checkMainAppFunctions();
+            }, 1000);
+        };
+        
+        log('🚀 Test page loaded', 'success');
+    </script>
+</body>
+</html>

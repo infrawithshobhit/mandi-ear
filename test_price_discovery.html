@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Discovery Test - MANDI EAR™</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .test-button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .test-button:hover { background: #0056b3; }
+        .results { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        pre { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .feature-card { background: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 5px solid #007bff; }
+        .feature-card h3 { margin: 0 0 10px 0; color: #0d47a1; }
+        .feature-card p { margin: 0; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Price Discovery Functionality - Verification Test</h1>
+        
+        <div class="status info">
+            <strong>Status:</strong> Testing the restored Price Discovery functionality from January 27th backup
+        </div>
+        
+        <h2>✅ Implementation Summary</h2>
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>🔧 JavaScript Functions</h3>
+                <p>Added openPriceDiscoveryTab(), initializePriceDiscovery(), loadPriceChart(), and searchPrices() functions</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎨 Modal Interface</h3>
+                <p>Complete price discovery modal with filters, chart container, and analysis results display</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔍 Advanced Filtering</h3>
+                <p>Filter by commodity, location, and time period with detailed analysis and recommendations</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎯 Button Updates</h3>
+                <p>Updated buttons to call openPriceDiscoveryTab() instead of testPriceDiscoveryAPI()</p>
+            </div>
+        </div>
+        
+        <h2>🧪 Functionality Tests</h2>
+        
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="testAPI()">Test Price API</button>
+            <button class="test-button" onclick="openMainPage()">Open Main Page</button>
+            <button class="test-button" onclick="testModalStructure()">Test Modal Structure</button>
+        </div>
+        
+        <div id="test-results" class="results">
+            <p><strong>Test Results will appear here...</strong></p>
+        </div>
+        
+        <h2>📋 Manual Testing Checklist</h2>
+        <div class="status info">
+            <strong>Please verify the following on the main MANDI EAR™ page:</strong>
+            <ol>
+                <li>✅ Price Discovery feature card is visible</li>
+                <li>✅ "Open Price Discovery" button opens a modal (not just API test)</li>
+                <li>✅ Modal contains filter fields: Commodity, Location, Time Period</li>
+                <li>✅ "Search Prices" button triggers price analysis</li>
+                <li>✅ Chart container shows placeholder initially</li>
+                <li>✅ Results show price analysis with recommendations</li>
+                <li>✅ Detailed analysis for specific commodities works</li>
+                <li>✅ All commodities view shows price grid</li>
+                <li>✅ Modal can be closed with X button</li>
+                <li>✅ All functionality works exactly like January 27th version</li>
+            </ol>
+        </div>
+        
+        <h2>🔍 Expected Behavior</h2>
+        <div class="status success">
+            <strong>When working correctly:</strong><br>
+            1. Click "Open Price Discovery" → Modal opens with filters<br>
+            2. Select filters (Commodity: Wheat, Location: Delhi, Period: Today)<br>
+            3. Click "Search Prices" → Loading spinner appears<br>
+            4. After ~1 second → Detailed analysis appears for Wheat<br>
+            5. Analysis shows: Current Price, Trend, Category, Location<br>
+            6. Recommendations appear based on price trend<br>
+            7. Chart updates with selected filters<br>
+            8. Try "All Commodities" to see price grid view
+        </div>
+        
+        <h2>🎯 Test Scenarios</h2>
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>Scenario 1: Single Commodity</h3>
+                <p>Select Wheat → Delhi → Today → Should show detailed analysis with recommendations</p>
+            </div>
+            <div class="feature-card">
+                <h3>Scenario 2: All Commodities</h3>
+                <p>Select All Commodities → All Locations → Today → Should show price grid with all crops</p>
+            </div>
+            <div class="feature-card">
+                <h3>Scenario 3: Different Periods</h3>
+                <p>Try different time periods → Chart title should update accordingly</p>
+            </div>
+            <div class="feature-card">
+                <h3>Scenario 4: Various Locations</h3>
+                <p>Try different locations → Analysis should reflect selected location</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div style="color: #007bff;">🔄 Testing Price Discovery API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/prices/current');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #007bff; font-weight: bold;">✅ API Test SUCCESSFUL!</div>
+                        <h3>Available Commodities:</h3>
+                        <ul>
+                            ${Object.keys(data.prices).map(commodity => 
+                                `<li><strong>${commodity.charAt(0).toUpperCase() + commodity.slice(1)}</strong>: ₹${data.prices[commodity].price} ${data.prices[commodity].unit} (${data.prices[commodity].change})</li>`
+                            ).join('')}
+                        </ul>
+                        <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 5px;">
+                            <strong>✅ Verification:</strong><br>
+                            • Total Commodities: ${Object.keys(data.prices).length}<br>
+                            • Data Source: ${data.source}<br>
+                            • Timestamp: ${data.timestamp}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `<div style="color: #e74c3c; font-weight: bold;">❌ API Error: ${data.detail || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div style="color: #e74c3c; font-weight: bold;">❌ Network Error: ${error.message}</div>`;
+            }
+        }
+        
+        function openMainPage() {
+            window.open('http://localhost:8001', '_blank');
+            document.getElementById('test-results').innerHTML = `
+                <div style="color: #007bff; font-weight: bold;">✅ Main page opened in new tab</div>
+                <p>Please test the Price Discovery functionality on the main page:</p>
+                <ol>
+                    <li>Look for the "Price Discovery" feature card</li>
+                    <li>Click "Open Price Discovery" button</li>
+                    <li>Verify modal opens with filter fields</li>
+                    <li>Try different filter combinations</li>
+                    <li>Click "Search Prices" and verify results</li>
+                    <li>Test both single commodity and "All Commodities" views</li>
+                </ol>
+            `;
+        }
+        
+        function testModalStructure() {
+            const resultsDiv = document.getElementById('test-results');
+            
+            // Test if we can fetch the main page and check for modal structure
+            fetch('http://localhost:8001')
+                .then(response => response.text())
+                .then(html => {
+                    const hasModal = html.includes('price-modal');
+                    const hasFilters = html.includes('price-commodity') && html.includes('price-location') && html.includes('price-period');
+                    const hasFunction = html.includes('openPriceDiscoveryTab') && html.includes('searchPrices');
+                    const hasButton = html.includes('Open Price Discovery');
+                    const hasChart = html.includes('price-comparison-chart');
+                    
+                    let status = '';
+                    if (hasModal && hasFilters && hasFunction && hasButton && hasChart) {
+                        status = '<div style="color: #007bff; font-weight: bold;">✅ Modal Structure Test PASSED!</div>';
+                    } else {
+                        status = '<div style="color: #e74c3c; font-weight: bold;">❌ Modal Structure Test FAILED!</div>';
+                    }
+                    
+                    resultsDiv.innerHTML = `
+                        ${status}
+                        <h3>Structure Check Results:</h3>
+                        <ul>
+                            <li>Price Modal Present: ${hasModal ? '✅' : '❌'}</li>
+                            <li>Filter Fields Present: ${hasFilters ? '✅' : '❌'}</li>
+                            <li>JavaScript Functions Present: ${hasFunction ? '✅' : '❌'}</li>
+                            <li>Button Text Updated: ${hasButton ? '✅' : '❌'}</li>
+                            <li>Chart Container Present: ${hasChart ? '✅' : '❌'}</li>
+                        </ul>
+                        <p><strong>Next:</strong> Test the actual functionality on the main page!</p>
+                    `;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<div style="color: #e74c3c; font-weight: bold;">❌ Could not fetch main page: ${error.message}</div>`;
+                });
+        }
+        
+        // Auto-run API test on page load
+        window.onload = function() {
+            testAPI();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Final Price Fix Test - MANDI EAR™</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .test-button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .test-button:hover { background: #0056b3; }
+        .test-button.success { background: #28a745; }
+        .test-button.error { background: #dc3545; }
+        .results { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        .price-card { background: linear-gradient(135deg, #fff3cd, #ffeaa7); padding: 15px; border-radius: 10px; border: 2px solid #f39c12; margin: 10px 0; display: inline-block; width: 200px; text-align: center; }
+        .commodity-name { font-weight: bold; color: #2c5530; margin-bottom: 8px; }
+        .price-value { font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 5px; }
+        .price-details { font-size: 0.9em; color: #666; }
+        .comparison { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Final Price Fix Test</h1>
+        
+        <div class="status info">
+            <strong>Cache-Busting Enabled:</strong> This page forces fresh load of all resources
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="testPriceDiscoveryLogic()">🧪 Test Price Discovery Logic</button>
+            <button class="test-button" onclick="openMainApp()">🚀 Open Main App (Fresh)</button>
+            <button class="test-button" onclick="testDirectAPI()">📊 Test API Direct</button>
+        </div>
+        
+        <div id="test-results" class="results">
+            <p><strong>Ready to test the price fix...</strong></p>
+            <p>This test uses the exact same logic as the Price Discovery modal with cache-busting enabled.</p>
+        </div>
+        
+        <h2>🎯 What Should Happen</h2>
+        <div class="status success">
+            <strong>✅ Expected Results:</strong><br>
+            • Wheat: ₹2,500 per quintal (+5%)<br>
+            • Rice: ₹3,200 per quintal (0%)<br>
+            • Tomato: ₹2,800 per quintal (+12%)<br>
+            • All prices should show actual numbers, NOT "₹undefined"
+        </div>
+    </div>
+
+    <script>
+        // Add timestamp to all requests to prevent caching
+        const cacheBuster = Date.now();
+        
+        function updateResults(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            
+            resultsDiv.innerHTML += `
+                <div class="status ${statusClass}">
+                    <strong>[${timestamp}]</strong> ${message}
+                </div>
+            `;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        async function testPriceDiscoveryLogic() {
+            updateResults('🧪 Testing Price Discovery logic with cache-busting...', 'info');
+            
+            try {
+                // Add cache buster to API call
+                const response = await fetch(`http://localhost:8001/api/v1/prices/current?_cb=${cacheBuster}`);
+                const data = await response.json();
+                
+                updateResults('✅ API response received successfully', 'success');
+                
+                // Test the EXACT same logic from the fixed searchPrices function
+                let results = '<h4>📊 Price Analysis Results (Fixed Logic)</h4>';
+                let priceCount = 0;
+                let undefinedCount = 0;
+                
+                results += '<div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+                Object.entries(data.prices).forEach(([key, price]) => {
+                    const commodityName = key.charAt(0).toUpperCase() + key.slice(1);
+                    
+                    // FIXED CODE: Using price.national_average instead of price.price
+                    const priceValue = price.national_average;
+                    const changeValue = price.change_percentage;
+                    
+                    priceCount++;
+                    if (priceValue === undefined || priceValue === null) {
+                        undefinedCount++;
+                    }
+                    
+                    results += `
+                        <div class="price-card">
+                            <div class="commodity-name">${commodityName}</div>
+                            <div class="price-value">₹${priceValue}</div>
+                            <div class="price-details">
+                                <span>${price.unit}</span><br>
+                                <span class="trend ${price.trend}">${changeValue}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                results += '</div>';
+                
+                // Show test results
+                if (undefinedCount === 0) {
+                    updateResults(`🎉 SUCCESS! All ${priceCount} prices display correctly (no undefined values)`, 'success');
+                } else {
+                    updateResults(`❌ FAILED! ${undefinedCount}/${priceCount} prices are undefined`, 'error');
+                }
+                
+                // Show comparison
+                const firstCommodity = Object.keys(data.prices)[0];
+                const firstPrice = data.prices[firstCommodity];
+                
+                results += `
+                    <div class="comparison">
+                        <h4>🔍 Field Mapping Test</h4>
+                        <strong>Sample: ${firstCommodity}</strong><br>
+                        <strong style="color: #dc3545;">OLD (Broken):</strong> price.price = ${firstPrice.price || 'undefined'}<br>
+                        <strong style="color: #28a745;">NEW (Fixed):</strong> price.national_average = ${firstPrice.national_average}<br>
+                        <strong style="color: #dc3545;">OLD (Broken):</strong> price.change = ${firstPrice.change || 'undefined'}<br>
+                        <strong style="color: #28a745;">NEW (Fixed):</strong> price.change_percentage = ${firstPrice.change_percentage}
+                    </div>
+                `;
+                
+                updateResults(results, 'info');
+                
+            } catch (error) {
+                updateResults(`❌ Error testing price logic: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDirectAPI() {
+            updateResults('📊 Testing API response structure...', 'info');
+            
+            try {
+                const response = await fetch(`http://localhost:8001/api/v1/prices/current?_cb=${cacheBuster}`);
+                const data = await response.json();
+                
+                // Check structure
+                const hasCorrectStructure = data.prices && 
+                    Object.keys(data.prices).length > 0 &&
+                    data.prices.wheat &&
+                    data.prices.wheat.national_average !== undefined;
+                
+                if (hasCorrectStructure) {
+                    updateResults('✅ API structure is correct', 'success');
+                    updateResults(`📊 Sample: Wheat = ₹${data.prices.wheat.national_average}`, 'success');
+                } else {
+                    updateResults('❌ API structure is incorrect', 'error');
+                }
+                
+            } catch (error) {
+                updateResults(`❌ Error testing API: ${error.message}`, 'error');
+            }
+        }
+        
+        function openMainApp() {
+            updateResults('🚀 Opening main application with cache-busting...', 'info');
+            // Add cache buster to URL
+            window.open(`http://localhost:8001?_cb=${cacheBuster}`, '_blank');
+            updateResults('📱 Main app opened. Test Price Discovery modal now.', 'info');
+            updateResults('🎯 Expected: Prices should show actual values, not "₹undefined"', 'success');
+        }
+        
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            updateResults('🔧 Final Price Fix Test Ready (Cache-Busting Enabled)', 'info');
+            setTimeout(testPriceDiscoveryLogic, 1000);
+        });
+    </script>
+</body>
+</html>

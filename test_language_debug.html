@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .debug-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .log { padding: 8px; margin: 3px 0; border-radius: 3px; font-family: monospace; font-size: 12px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        button { background: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        iframe { width: 100%; height: 400px; border: 1px solid #ddd; margin: 10px 0; }
+        #logs { max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h2>🐛 Language Dropdown Debug</h2>
+        
+        <div>
+            <button onclick="testDropdownClick()">Test Dropdown Click</button>
+            <button onclick="testHindiSelection()">Test Hindi Selection</button>
+            <button onclick="inspectElements()">Inspect Elements</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div id="logs"></div>
+        
+        <iframe id="app" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        function getApp() {
+            const iframe = document.getElementById('app');
+            return {
+                window: iframe.contentWindow,
+                document: iframe.contentDocument
+            };
+        }
+
+        async function testDropdownClick() {
+            log('Testing dropdown click...', 'info');
+            
+            try {
+                const app = getApp();
+                
+                // Wait for app to load
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Find dropdown button
+                const dropdownBtn = app.document.querySelector('.language-dropdown');
+                if (!dropdownBtn) {
+                    log('❌ Dropdown button not found', 'error');
+                    return;
+                }
+                log('✅ Dropdown button found', 'success');
+                
+                // Check if click handler exists
+                const onclick = dropdownBtn.getAttribute('onclick');
+                log(`Onclick attribute: ${onclick}`, 'info');
+                
+                // Check if function exists
+                if (typeof app.window.toggleLanguageDropdown === 'function') {
+                    log('✅ toggleLanguageDropdown function exists', 'success');
+                } else {
+                    log('❌ toggleLanguageDropdown function missing', 'error');
+                }
+                
+                // Try clicking
+                log('Attempting to click dropdown...', 'info');
+                dropdownBtn.click();
+                
+                // Check if dropdown opened
+                setTimeout(() => {
+                    const dropdown = app.document.getElementById('language-options');
+                    if (dropdown && dropdown.classList.contains('show')) {
+                        log('✅ Dropdown opened successfully!', 'success');
+                    } else {
+                        log('❌ Dropdown did not open', 'error');
+                        if (dropdown) {
+                            log(`Dropdown classes: ${dropdown.className}`, 'info');
+                        }
+                    }
+                }, 500);
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testHindiSelection() {
+            log('Testing Hindi selection...', 'info');
+            
+            try {
+                const app = getApp();
+                
+                // Wait for app to load
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check if selectLanguage function exists
+                if (typeof app.window.selectLanguage === 'function') {
+                    log('✅ selectLanguage function exists', 'success');
+                    
+                    // Get current language before change
+                    const currentLangBefore = app.document.getElementById('current-language');
+                    log(`Language before: ${currentLangBefore ? currentLangBefore.textContent : 'not found'}`, 'info');
+                    
+                    // Call selectLanguage directly
+                    log('Calling selectLanguage("hi", "हिंदी", "🇮🇳")...', 'info');
+                    app.window.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                    
+                    // Check result after a delay
+                    setTimeout(() => {
+                        const currentLangAfter = app.document.getElementById('current-language');
+                        log(`Language after: ${currentLangAfter ? currentLangAfter.textContent : 'not found'}`, 'info');
+                        
+                        if (currentLangAfter && currentLangAfter.textContent.includes('हिंदी')) {
+                            log('✅ Hindi selection worked!', 'success');
+                            
+                            // Check if UI is translated
+                            const heroTitle = app.document.querySelector('[data-translate="hero-title"]');
+                            if (heroTitle) {
+                                log(`Hero title: ${heroTitle.textContent}`, 'info');
+                                if (heroTitle.textContent.includes('कृषि')) {
+                                    log('✅ UI is translated to Hindi', 'success');
+                                } else {
+                                    log('⚠️ UI may not be fully translated', 'warning');
+                                }
+                            }
+                        } else {
+                            log('❌ Hindi selection failed', 'error');
+                        }
+                    }, 1000);
+                    
+                } else {
+                    log('❌ selectLanguage function not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function inspectElements() {
+            log('Inspecting elements...', 'info');
+            
+            try {
+                const app = getApp();
+                
+                // Wait for app to load
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check key elements
+                const elements = [
+                    { id: 'current-language', name: 'Current Language Display' },
+                    { id: 'language-options', name: 'Language Options Container' },
+                    { selector: '.language-dropdown', name: 'Language Dropdown Button' },
+                    { selector: '.language-option', name: 'Language Options', multiple: true }
+                ];
+                
+                elements.forEach(element => {
+                    let found;
+                    if (element.id) {
+                        found = app.document.getElementById(element.id);
+                    } else {
+                        found = app.document.querySelector(element.selector);
+                    }
+                    
+                    if (found) {
+                        if (element.multiple) {
+                            const count = app.document.querySelectorAll(element.selector).length;
+                            log(`✅ ${element.name}: ${count} found`, 'success');
+                        } else {
+                            log(`✅ ${element.name}: Found`, 'success');
+                            if (element.id === 'current-language') {
+                                log(`  Text: "${found.textContent}"`, 'info');
+                            }
+                        }
+                    } else {
+                        log(`❌ ${element.name}: Not found`, 'error');
+                    }
+                });
+                
+                // Check Hindi option specifically
+                const hindiOption = app.document.querySelector('.language-option[onclick*="hi"]');
+                if (hindiOption) {
+                    log(`✅ Hindi option found: "${hindiOption.textContent.trim()}"`, 'success');
+                    log(`  Onclick: ${hindiOption.getAttribute('onclick')}`, 'info');
+                } else {
+                    log('❌ Hindi option not found', 'error');
+                    
+                    // List all language options
+                    const allOptions = app.document.querySelectorAll('.language-option');
+                    log(`Found ${allOptions.length} language options:`, 'info');
+                    allOptions.forEach((option, index) => {
+                        log(`  ${index + 1}: "${option.textContent.trim()}" - onclick: ${option.getAttribute('onclick')}`, 'info');
+                    });
+                }
+                
+                // Check JavaScript functions
+                const functions = ['toggleLanguageDropdown', 'selectLanguage', 'updateUILanguage'];
+                functions.forEach(funcName => {
+                    if (typeof app.window[funcName] === 'function') {
+                        log(`✅ Function ${funcName}: Available`, 'success');
+                    } else {
+                        log(`❌ Function ${funcName}: Missing`, 'error');
+                    }
+                });
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run inspection when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                log('🚀 Debug tool ready', 'info');
+                inspectElements();
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

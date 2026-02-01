@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ccc; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🌐 MANDI EAR Language Translation Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Language Test Controls</h2>
+        <button onclick="testLanguageTranslation('hi', 'हिंदी')">Test Hindi Translation</button>
+        <button onclick="testLanguageTranslation('bn', 'বাংলা')">Test Bengali Translation</button>
+        <button onclick="testLanguageTranslation('te', 'తెలుగు')">Test Telugu Translation</button>
+        <button onclick="testLanguageTranslation('ta', 'தமிழ்')">Test Tamil Translation</button>
+        <button onclick="testLanguageTranslation('en', 'English')">Test English Translation</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Live Application</h2>
+        <iframe id="app-frame" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testLanguageTranslation(langCode, langName) {
+            addResult(`🧪 Testing ${langName} (${langCode}) translation...`, 'info');
+            
+            try {
+                const iframe = document.getElementById('app-frame');
+                const frameWindow = iframe.contentWindow;
+                const frameDoc = iframe.contentDocument;
+                
+                if (!frameWindow || !frameDoc) {
+                    addResult('❌ Cannot access iframe content. Make sure the server is running on port 8001.', 'error');
+                    return;
+                }
+                
+                // Wait for the page to load
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check if selectLanguage function exists
+                if (typeof frameWindow.selectLanguage !== 'function') {
+                    addResult('❌ selectLanguage function not found in the application', 'error');
+                    return;
+                }
+                
+                // Test language selection
+                addResult(`🔄 Selecting ${langName} language...`, 'info');
+                frameWindow.selectLanguage(langCode, langName, '🇮🇳');
+                
+                // Wait for translation to apply
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Check if hero title was translated
+                const heroTitle = frameDoc.querySelector('[data-translate="hero-title"]');
+                if (heroTitle) {
+                    const titleText = heroTitle.textContent;
+                    addResult(`✅ Hero title: "${titleText}"`, 'success');
+                    
+                    // Check if it's actually translated (not English)
+                    if (langCode !== 'en' && titleText === 'Agricultural Intelligence Platform') {
+                        addResult('⚠️ Hero title was not translated from English', 'error');
+                    } else if (langCode !== 'en') {
+                        addResult('✅ Hero title successfully translated', 'success');
+                    }
+                } else {
+                    addResult('❌ Hero title element not found', 'error');
+                }
+                
+                // Check if price units were translated
+                const priceUnits = frameDoc.querySelectorAll('[data-translate="per-quintal"]');
+                if (priceUnits.length > 0) {
+                    const unitText = priceUnits[0].textContent;
+                    addResult(`✅ Price unit: "${unitText}" (found ${priceUnits.length} instances)`, 'success');
+                    
+                    // Check if it's actually translated
+                    if (langCode !== 'en' && unitText === 'per quintal') {
+                        addResult('⚠️ Price units were not translated from English', 'error');
+                    } else if (langCode !== 'en') {
+                        addResult('✅ Price units successfully translated', 'success');
+                    }
+                } else {
+                    addResult('❌ Price unit elements not found', 'error');
+                }
+                
+                // Check commodity names
+                const commodityNames = frameDoc.querySelectorAll('.commodity-name');
+                if (commodityNames.length > 0) {
+                    const wheatName = commodityNames[0].textContent; // First should be Wheat
+                    addResult(`✅ First commodity name: "${wheatName}"`, 'success');
+                    
+                    // Check if it's translated
+                    if (langCode !== 'en' && wheatName === 'Wheat') {
+                        addResult('⚠️ Commodity names were not translated from English', 'error');
+                    } else if (langCode !== 'en') {
+                        addResult('✅ Commodity names successfully translated', 'success');
+                    }
+                } else {
+                    addResult('❌ Commodity name elements not found', 'error');
+                }
+                
+                // Check button translations
+                const buttons = frameDoc.querySelectorAll('[data-translate="test-voice-api"]');
+                if (buttons.length > 0) {
+                    const buttonText = buttons[0].textContent;
+                    addResult(`✅ Button text: "${buttonText}"`, 'success');
+                } else {
+                    addResult('❌ Button elements not found', 'error');
+                }
+                
+                addResult(`🎉 ${langName} translation test completed!`, 'success');
+                
+            } catch (error) {
+                addResult(`❌ Error testing ${langName}: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-load the application when page loads
+        window.addEventListener('load', () => {
+            addResult('🚀 Language translation test page loaded', 'info');
+            addResult('📝 Click the language buttons above to test translations', 'info');
+            addResult('🔧 Make sure the MANDI EAR server is running on port 8001', 'info');
+        });
+    </script>
+</body>
+</html>

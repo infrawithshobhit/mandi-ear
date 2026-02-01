@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Language Test - Working Version</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f0f8ff; }
+        .test-panel { background: white; padding: 20px; border-radius: 10px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .result { padding: 12px; margin: 8px 0; border-radius: 6px; font-weight: 500; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        button { background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin: 8px; font-size: 16px; font-weight: 600; }
+        button:hover { background: #218838; transform: translateY(-1px); }
+        button.primary { background: #007bff; }
+        button.primary:hover { background: #0056b3; }
+        iframe { width: 100%; height: 600px; border: 2px solid #007bff; border-radius: 8px; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; }
+        .step { margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #007bff; }
+        .step-title { font-weight: bold; color: #007bff; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="test-panel">
+        <h1>🇮🇳 Hindi Language Test - Enhanced Version</h1>
+        <p>Testing the improved Hindi language selection functionality with enhanced debugging.</p>
+        
+        <div id="status" class="status info">Ready to test Hindi language selection...</div>
+        
+        <div class="step">
+            <div class="step-title">Step 1: Test Language Dropdown</div>
+            <button onclick="testDropdown()" class="primary">🔽 Test Dropdown Open/Close</button>
+            <button onclick="inspectDropdown()">🔍 Inspect Dropdown Elements</button>
+        </div>
+        
+        <div class="step">
+            <div class="step-title">Step 2: Test Hindi Selection</div>
+            <button onclick="testHindiDirect()">🎯 Test Direct Hindi Selection</button>
+            <button onclick="testHindiClick()">👆 Test Hindi Click Simulation</button>
+        </div>
+        
+        <div class="step">
+            <div class="step-title">Step 3: Verify Translation</div>
+            <button onclick="verifyTranslation()">🔤 Verify UI Translation</button>
+            <button onclick="checkPriceCards()">💰 Check Price Card Translation</button>
+        </div>
+        
+        <div class="step">
+            <div class="step-title">Controls</div>
+            <button onclick="clearResults()" style="background: #dc3545;">🧹 Clear Results</button>
+            <button onclick="runFullTest()" style="background: #ffc107; color: #212529;">🚀 Run Full Test</button>
+        </div>
+    </div>
+    
+    <div class="test-panel">
+        <h3>Test Results</h3>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-panel">
+        <h3>MANDI EAR Application</h3>
+        <iframe id="app" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            updateStatus('Results cleared - ready for new test', 'info');
+        }
+
+        function getApp() {
+            const iframe = document.getElementById('app');
+            return {
+                window: iframe.contentWindow,
+                document: iframe.contentDocument
+            };
+        }
+
+        async function testDropdown() {
+            addResult('🔽 Testing language dropdown functionality...', 'info');
+            updateStatus('Testing dropdown...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Check if dropdown exists
+                const dropdown = app.document.getElementById('language-options');
+                if (!dropdown) {
+                    addResult('❌ Language dropdown not found', 'error');
+                    updateStatus('❌ Dropdown test failed', 'error');
+                    return;
+                }
+                
+                addResult('✅ Language dropdown found', 'success');
+                
+                // Check initial state
+                const initialState = dropdown.classList.contains('show');
+                addResult(`Initial state: ${initialState ? 'open' : 'closed'}`, 'info');
+                
+                // Test toggle function
+                if (typeof app.window.toggleLanguageDropdown === 'function') {
+                    addResult('✅ toggleLanguageDropdown function found', 'success');
+                    
+                    // Call the function
+                    addResult('Calling toggleLanguageDropdown()...', 'info');
+                    app.window.toggleLanguageDropdown();
+                    
+                    // Check result
+                    setTimeout(() => {
+                        const newState = dropdown.classList.contains('show');
+                        addResult(`State after toggle: ${newState ? 'open' : 'closed'}`, 'info');
+                        
+                        if (initialState !== newState) {
+                            addResult('✅ Dropdown toggle works perfectly!', 'success');
+                            updateStatus('✅ Dropdown test passed', 'success');
+                        } else {
+                            addResult('❌ Dropdown toggle failed', 'error');
+                            updateStatus('❌ Dropdown test failed', 'error');
+                        }
+                    }, 500);
+                    
+                } else {
+                    addResult('❌ toggleLanguageDropdown function not found', 'error');
+                    updateStatus('❌ Function missing', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error testing dropdown: ${error.message}`, 'error');
+                updateStatus('❌ Dropdown test error', 'error');
+            }
+        }
+
+        async function inspectDropdown() {
+            addResult('🔍 Inspecting dropdown elements...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check dropdown button
+                const dropdownBtn = app.document.querySelector('.language-dropdown');
+                if (dropdownBtn) {
+                    addResult('✅ Dropdown button found', 'success');
+                    addResult(`Button onclick: ${dropdownBtn.getAttribute('onclick')}`, 'info');
+                } else {
+                    addResult('❌ Dropdown button not found', 'error');
+                }
+                
+                // Check language options
+                const options = app.document.querySelectorAll('.language-option');
+                addResult(`✅ Found ${options.length} language options`, 'success');
+                
+                // Check Hindi option specifically
+                const hindiOption = app.document.querySelector('.language-option[onclick*="hi"]');
+                if (hindiOption) {
+                    addResult('✅ Hindi option found', 'success');
+                    addResult(`Hindi text: "${hindiOption.textContent.trim()}"`, 'info');
+                    addResult(`Hindi onclick: ${hindiOption.getAttribute('onclick')}`, 'info');
+                } else {
+                    addResult('❌ Hindi option not found', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error inspecting dropdown: ${error.message}`, 'error');
+            }
+        }
+
+        async function testHindiDirect() {
+            addResult('🎯 Testing direct Hindi language selection...', 'info');
+            updateStatus('Testing Hindi selection...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check if selectLanguage function exists
+                if (typeof app.window.selectLanguage !== 'function') {
+                    addResult('❌ selectLanguage function not found', 'error');
+                    updateStatus('❌ Function missing', 'error');
+                    return;
+                }
+                
+                addResult('✅ selectLanguage function found', 'success');
+                
+                // Get current language before
+                const currentLangElement = app.document.getElementById('current-language');
+                if (!currentLangElement) {
+                    addResult('❌ Current language element not found', 'error');
+                    return;
+                }
+                
+                const beforeText = currentLangElement.textContent;
+                addResult(`Language before: "${beforeText}"`, 'info');
+                
+                // Capture console output from the app
+                const originalLog = app.window.console.log;
+                app.window.console.log = function(...args) {
+                    addResult(`App Log: ${args.join(' ')}`, 'info');
+                    originalLog.apply(this, args);
+                };
+                
+                // Call selectLanguage function
+                addResult('Calling selectLanguage("hi", "हिंदी", "🇮🇳")...', 'info');
+                app.window.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                
+                // Check result after delay
+                setTimeout(() => {
+                    const afterText = currentLangElement.textContent;
+                    addResult(`Language after: "${afterText}"`, 'info');
+                    
+                    if (afterText.includes('हिंदी')) {
+                        addResult('✅ SUCCESS! Hindi language selection works!', 'success');
+                        updateStatus('✅ Hindi selection successful!', 'success');
+                    } else {
+                        addResult('❌ FAILED: Language did not change to Hindi', 'error');
+                        updateStatus('❌ Hindi selection failed', 'error');
+                    }
+                    
+                    // Restore console
+                    app.window.console.log = originalLog;
+                }, 2000);
+                
+            } catch (error) {
+                addResult(`❌ Error testing Hindi selection: ${error.message}`, 'error');
+                updateStatus('❌ Hindi test error', 'error');
+            }
+        }
+
+        async function testHindiClick() {
+            addResult('👆 Testing Hindi click simulation...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Find Hindi option
+                const hindiOption = app.document.querySelector('.language-option[onclick*="hi"]');
+                if (!hindiOption) {
+                    addResult('❌ Hindi option not found for clicking', 'error');
+                    return;
+                }
+                
+                addResult('✅ Hindi option found for clicking', 'success');
+                
+                // Get current language before click
+                const currentLangElement = app.document.getElementById('current-language');
+                const beforeText = currentLangElement ? currentLangElement.textContent : 'not found';
+                addResult(`Language before click: "${beforeText}"`, 'info');
+                
+                // Simulate click
+                addResult('Simulating click on Hindi option...', 'info');
+                hindiOption.click();
+                
+                // Check result
+                setTimeout(() => {
+                    const afterText = currentLangElement ? currentLangElement.textContent : 'not found';
+                    addResult(`Language after click: "${afterText}"`, 'info');
+                    
+                    if (afterText.includes('हिंदी')) {
+                        addResult('✅ SUCCESS! Click simulation works!', 'success');
+                    } else {
+                        addResult('❌ FAILED: Click simulation did not work', 'error');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                addResult(`❌ Error testing Hindi click: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyTranslation() {
+            addResult('🔤 Verifying UI translation to Hindi...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check key translated elements
+                const elementsToCheck = [
+                    { key: 'hero-title', expected: 'कृषि' },
+                    { key: 'hero-subtitle', expected: 'भारत' },
+                    { key: 'live-prices', expected: 'लाइव' },
+                    { key: 'system-operational', expected: 'सिस्टम' }
+                ];
+                
+                let translatedCount = 0;
+                elementsToCheck.forEach(item => {
+                    const element = app.document.querySelector(`[data-translate="${item.key}"]`);
+                    if (element) {
+                        const text = element.textContent;
+                        addResult(`${item.key}: "${text}"`, 'info');
+                        
+                        if (text.includes(item.expected)) {
+                            addResult(`✅ ${item.key} is translated to Hindi`, 'success');
+                            translatedCount++;
+                        } else {
+                            addResult(`❌ ${item.key} is not translated to Hindi`, 'error');
+                        }
+                    } else {
+                        addResult(`❌ Element ${item.key} not found`, 'error');
+                    }
+                });
+                
+                if (translatedCount === elementsToCheck.length) {
+                    addResult('✅ All UI elements are properly translated!', 'success');
+                    updateStatus('✅ Translation verified!', 'success');
+                } else {
+                    addResult(`⚠️ ${translatedCount}/${elementsToCheck.length} elements translated`, 'warning');
+                    updateStatus('⚠️ Partial translation', 'warning');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error verifying translation: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkPriceCards() {
+            addResult('💰 Checking price card translations...', 'info');
+            
+            try {
+                const app = getApp();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const priceCards = app.document.querySelectorAll('.price-card');
+                addResult(`Found ${priceCards.length} price cards`, 'info');
+                
+                let translatedCards = 0;
+                priceCards.forEach((card, index) => {
+                    const commodityName = card.querySelector('.commodity-name');
+                    if (commodityName) {
+                        const text = commodityName.textContent;
+                        addResult(`Card ${index + 1}: "${text}"`, 'info');
+                        
+                        // Check if it contains Hindi text (Devanagari script)
+                        if (/[\u0900-\u097F]/.test(text)) {
+                            addResult(`✅ Card ${index + 1} has Hindi text`, 'success');
+                            translatedCards++;
+                        } else {
+                            addResult(`❌ Card ${index + 1} is not in Hindi`, 'error');
+                        }
+                    }
+                });
+                
+                if (translatedCards > 0) {
+                    addResult(`✅ ${translatedCards}/${priceCards.length} price cards translated`, 'success');
+                } else {
+                    addResult('❌ No price cards are translated to Hindi', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error checking price cards: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullTest() {
+            addResult('🚀 Running comprehensive Hindi language test...', 'info');
+            updateStatus('Running full test...', 'info');
+            
+            clearResults();
+            addResult('🚀 Starting comprehensive test suite...', 'info');
+            
+            // Run all tests in sequence
+            await testDropdown();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testHindiDirect();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            await verifyTranslation();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await checkPriceCards();
+            
+            addResult('🏁 Full test completed!', 'info');
+            updateStatus('✅ Full test completed', 'success');
+        }
+
+        // Auto-run basic check when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                addResult('🚀 Hindi Language Test Tool Loaded', 'info');
+                addResult('Enhanced with better debugging and error handling', 'info');
+                updateStatus('Ready to test - click "Run Full Test" for complete testing', 'info');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

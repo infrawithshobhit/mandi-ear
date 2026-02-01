@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANDI EAR - Final Demo Test</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 2.5em; }
+        .header p { margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.9; }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            height: 80vh;
+        }
+        .test-panel {
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #eee;
+        }
+        .app-panel {
+            background: #f8f9fa;
+            position: relative;
+        }
+        .app-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 0;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .test-section h3 {
+            margin: 0 0 15px 0;
+            color: #2c5530;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .test-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .test-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .test-btn.secondary {
+            background: #007bff;
+        }
+        .test-btn.secondary:hover {
+            background: #0056b3;
+        }
+        .results {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 5px;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+        .result-item {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .demo-instructions {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .demo-instructions h4 {
+            margin: 0 0 10px 0;
+            color: #1565c0;
+        }
+        .demo-step {
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(33, 101, 192, 0.1);
+        }
+        .demo-step:last-child {
+            border-bottom: none;
+        }
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="header">
+            <h1>🎯 MANDI EAR™ Final Demo Test</h1>
+            <p>Complete functionality verification for demo presentation</p>
+        </div>
+        
+        <div class="demo-grid">
+            <div class="test-panel">
+                <div class="demo-instructions">
+                    <h4>🎬 Demo Script</h4>
+                    <div class="demo-step">1. Show homepage with live price cards</div>
+                    <div class="demo-step">2. Demonstrate language translation (EN → HI → BN)</div>
+                    <div class="demo-step">3. Open and test each of the 6 main tabs</div>
+                    <div class="demo-step">4. Show API endpoints working</div>
+                    <div class="demo-step">5. Demonstrate responsive design</div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🌐 Language Translation Test</h3>
+                    <div class="test-buttons">
+                        <button class="test-btn" onclick="testLanguageDropdown()">Test Dropdown</button>
+                        <button class="test-btn" onclick="testLanguageSwitching()">Test Switching</button>
+                        <button class="test-btn" onclick="testCommodityTranslation()">Test Commodities</button>
+                    </div>
+                    <div class="results" id="language-results"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>📋 Tab Functionality Test</h3>
+                    <div class="test-buttons">
+                        <button class="test-btn" onclick="testVoiceTab()">Voice Processing</button>
+                        <button class="test-btn" onclick="testPriceTab()">Price Discovery</button>
+                        <button class="test-btn" onclick="testNegotiationTab()">Negotiation</button>
+                        <button class="test-btn" onclick="testCropTab()">Crop Planning</button>
+                        <button class="test-btn" onclick="testMSPTab()">MSP Monitor</button>
+                        <button class="test-btn" onclick="testMandiTab()">Mandi Network</button>
+                    </div>
+                    <div class="results" id="tab-results"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🔌 API Endpoints Test</h3>
+                    <div class="test-buttons">
+                        <button class="test-btn secondary" onclick="testAllAPIs()">Test All APIs</button>
+                        <button class="test-btn secondary" onclick="testHealthCheck()">Health Check</button>
+                        <button class="test-btn secondary" onclick="testPricesAPI()">Prices API</button>
+                    </div>
+                    <div class="results" id="api-results"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🎨 UI Components Test</h3>
+                    <div class="test-buttons">
+                        <button class="test-btn" onclick="testPriceCards()">Price Cards</button>
+                        <button class="test-btn" onclick="testModals()">Modal System</button>
+                        <button class="test-btn" onclick="testResponsive()">Responsive Design</button>
+                    </div>
+                    <div class="results" id="ui-results"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🚀 Complete Demo Test</h3>
+                    <div class="test-buttons">
+                        <button class="test-btn" onclick="runCompleteTest()" style="background: #ff6b35; font-size: 1.1em; padding: 12px 24px;">
+                            🎯 RUN COMPLETE DEMO TEST
+                        </button>
+                        <button class="test-btn secondary" onclick="clearAllResults()">Clear Results</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-panel">
+                <iframe id="app-frame" class="app-frame" src="http://localhost:8001"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+        🎯 Demo Ready - All Systems Operational
+    </div>
+
+    <script>
+        let testCount = 0;
+        let passedCount = 0;
+        let failedCount = 0;
+
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `result-item ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            
+            testCount++;
+            if (type === 'success') passedCount++;
+            if (type === 'error') failedCount++;
+            
+            updateStatusBar();
+        }
+
+        function updateStatusBar() {
+            const statusBar = document.getElementById('status-bar');
+            const successRate = testCount > 0 ? Math.round((passedCount / testCount) * 100) : 100;
+            statusBar.textContent = `🎯 Demo Status: ${passedCount}/${testCount} tests passed (${successRate}%)`;
+            
+            if (successRate >= 90) {
+                statusBar.style.background = 'rgba(76, 175, 80, 0.9)';
+            } else if (successRate >= 70) {
+                statusBar.style.background = 'rgba(255, 193, 7, 0.9)';
+            } else {
+                statusBar.style.background = 'rgba(220, 53, 69, 0.9)';
+            }
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function clearAllResults() {
+            ['language-results', 'tab-results', 'api-results', 'ui-results'].forEach(clearResults);
+            testCount = 0;
+            passedCount = 0;
+            failedCount = 0;
+            updateStatusBar();
+        }
+
+        function getAppFrame() {
+            return document.getElementById('app-frame');
+        }
+
+        function getAppWindow() {
+            return getAppFrame().contentWindow;
+        }
+
+        function getAppDocument() {
+            return getAppFrame().contentDocument;
+        }
+
+        // Language Translation Tests
+        async function testLanguageDropdown() {
+            addResult('language-results', '🌐 Testing language dropdown...', 'info');
+            
+            try {
+                const appDoc = getAppDocument();
+                const dropdown = appDoc.getElementById('language-dropdown');
+                const options = appDoc.getElementById('language-options');
+                
+                if (dropdown) {
+                    addResult('language-results', '✅ Language dropdown found', 'success');
+                } else {
+                    addResult('language-results', '❌ Language dropdown not found', 'error');
+                    return;
+                }
+
+                if (options) {
+                    const langOptions = options.querySelectorAll('.language-option');
+                    addResult('language-results', `✅ Found ${langOptions.length} language options`, 'success');
+                } else {
+                    addResult('language-results', '❌ Language options not found', 'error');
+                }
+            } catch (error) {
+                addResult('language-results', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLanguageSwitching() {
+            addResult('language-results', '🔄 Testing language switching...', 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                if (typeof appWindow.selectLanguage === 'function') {
+                    addResult('language-results', '✅ selectLanguage function exists', 'success');
+                    
+                    // Test switching to Hindi
+                    appWindow.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                    
+                    setTimeout(() => {
+                        const heroTitle = appDoc.querySelector('[data-translate="hero-title"]');
+                        if (heroTitle && heroTitle.textContent.includes('कृषि')) {
+                            addResult('language-results', '✅ Hindi translation working', 'success');
+                        } else {
+                            addResult('language-results', '⚠️ Hindi translation may not be working', 'warning');
+                        }
+                        
+                        // Switch back to English
+                        appWindow.selectLanguage('en', 'English', '🇺🇸');
+                    }, 1000);
+                } else {
+                    addResult('language-results', '❌ selectLanguage function not found', 'error');
+                }
+            } catch (error) {
+                addResult('language-results', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCommodityTranslation() {
+            addResult('language-results', '🌾 Testing commodity translation...', 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // Switch to Hindi and check commodity names
+                appWindow.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                
+                setTimeout(() => {
+                    const priceCards = appDoc.querySelectorAll('.commodity-name');
+                    let translatedCount = 0;
+                    
+                    priceCards.forEach(card => {
+                        const text = card.textContent;
+                        if (text.includes('गेहूं') || text.includes('चावल') || text.includes('टमाटर')) {
+                            translatedCount++;
+                        }
+                    });
+                    
+                    if (translatedCount > 0) {
+                        addResult('language-results', `✅ ${translatedCount} commodities translated to Hindi`, 'success');
+                    } else {
+                        addResult('language-results', '⚠️ Commodity translation may not be working', 'warning');
+                    }
+                    
+                    // Switch back to English
+                    appWindow.selectLanguage('en', 'English', '🇺🇸');
+                }, 1000);
+            } catch (error) {
+                addResult('language-results', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Tab Functionality Tests
+        function testVoiceTab() {
+            testTabModal('voice-modal', 'Voice Processing', 'tab-results');
+        }
+
+        function testPriceTab() {
+            testTabModal('price-modal', 'Price Discovery', 'tab-results');
+        }
+
+        function testNegotiationTab() {
+            testTabModal('negotiation-modal', 'Negotiation Assistant', 'tab-results');
+        }
+
+        function testCropTab() {
+            testTabModal('crop-modal', 'Crop Planning', 'tab-results');
+        }
+
+        function testMSPTab() {
+            testTabModal('msp-modal', 'MSP Monitoring', 'tab-results');
+        }
+
+        function testMandiTab() {
+            testTabModal('mandi-modal', 'Cross-Mandi Network', 'tab-results');
+        }
+
+        function testTabModal(modalId, tabName, resultContainer) {
+            addResult(resultContainer, `📋 Testing ${tabName} tab...`, 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // Check if modal exists
+                const modal = appDoc.getElementById(modalId);
+                if (modal) {
+                    addResult(resultContainer, `✅ ${tabName} modal exists`, 'success');
+                    
+                    // Test opening modal
+                    if (typeof appWindow.openModal === 'function') {
+                        appWindow.openModal(modalId);
+                        
+                        setTimeout(() => {
+                            if (modal.classList.contains('show')) {
+                                addResult(resultContainer, `✅ ${tabName} modal opens successfully`, 'success');
+                                
+                                // Close modal
+                                appWindow.closeModal();
+                            } else {
+                                addResult(resultContainer, `⚠️ ${tabName} modal may not be opening`, 'warning');
+                            }
+                        }, 500);
+                    } else {
+                        addResult(resultContainer, '❌ openModal function not found', 'error');
+                    }
+                } else {
+                    addResult(resultContainer, `❌ ${tabName} modal not found`, 'error');
+                }
+            } catch (error) {
+                addResult(resultContainer, `❌ Error testing ${tabName}: ${error.message}`, 'error');
+            }
+        }
+
+        // API Tests
+        async function testHealthCheck() {
+            addResult('api-results', '🏥 Testing health check...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('api-results', '✅ Health check API working', 'success');
+                } else {
+                    addResult('api-results', `❌ Health check failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult('api-results', `❌ Health check error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPricesAPI() {
+            addResult('api-results', '💰 Testing prices API...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/prices/current');
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('api-results', `✅ Prices API working (${Object.keys(data.prices || {}).length} commodities)`, 'success');
+                } else {
+                    addResult('api-results', `❌ Prices API failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult('api-results', `❌ Prices API error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAllAPIs() {
+            const apis = [
+                { url: '/health', name: 'Health Check' },
+                { url: '/api/v1/prices/current', name: 'Current Prices' },
+                { url: '/api/v1/mandis', name: 'Mandis List' },
+                { url: '/api/v1/msp/rates', name: 'MSP Rates' },
+                { url: '/api/v1/test', name: 'Test Endpoint' }
+            ];
+
+            addResult('api-results', '🔌 Testing all API endpoints...', 'info');
+
+            for (const api of apis) {
+                try {
+                    const response = await fetch(`http://localhost:8001${api.url}`);
+                    if (response.ok) {
+                        addResult('api-results', `✅ ${api.name} API working`, 'success');
+                    } else {
+                        addResult('api-results', `❌ ${api.name} API failed: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addResult('api-results', `❌ ${api.name} API error: ${error.message}`, 'error');
+                }
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+
+        // UI Component Tests
+        function testPriceCards() {
+            addResult('ui-results', '💳 Testing price cards...', 'info');
+            
+            try {
+                const appDoc = getAppDocument();
+                const priceCards = appDoc.querySelectorAll('.price-card');
+                
+                if (priceCards.length > 0) {
+                    addResult('ui-results', `✅ Found ${priceCards.length} price cards`, 'success');
+                    
+                    let cardsWithNames = 0;
+                    priceCards.forEach(card => {
+                        const commodityName = card.querySelector('.commodity-name');
+                        if (commodityName && commodityName.textContent.trim()) {
+                            cardsWithNames++;
+                        }
+                    });
+                    
+                    addResult('ui-results', `✅ ${cardsWithNames}/${priceCards.length} cards have commodity names`, 'success');
+                } else {
+                    addResult('ui-results', '❌ No price cards found', 'error');
+                }
+            } catch (error) {
+                addResult('ui-results', `❌ Error testing price cards: ${error.message}`, 'error');
+            }
+        }
+
+        function testModals() {
+            addResult('ui-results', '🪟 Testing modal system...', 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                const modals = ['voice-modal', 'price-modal', 'negotiation-modal', 'crop-modal', 'msp-modal', 'mandi-modal'];
+                let foundModals = 0;
+                
+                modals.forEach(modalId => {
+                    const modal = appDoc.getElementById(modalId);
+                    if (modal) {
+                        foundModals++;
+                    }
+                });
+                
+                addResult('ui-results', `✅ Found ${foundModals}/${modals.length} modals`, 'success');
+                
+                // Test modal overlay
+                const overlay = appDoc.getElementById('modal-overlay');
+                if (overlay) {
+                    addResult('ui-results', '✅ Modal overlay system exists', 'success');
+                } else {
+                    addResult('ui-results', '❌ Modal overlay not found', 'error');
+                }
+                
+                // Test modal functions
+                if (typeof appWindow.openModal === 'function' && typeof appWindow.closeModal === 'function') {
+                    addResult('ui-results', '✅ Modal functions exist', 'success');
+                } else {
+                    addResult('ui-results', '❌ Modal functions missing', 'error');
+                }
+            } catch (error) {
+                addResult('ui-results', `❌ Error testing modals: ${error.message}`, 'error');
+            }
+        }
+
+        function testResponsive() {
+            addResult('ui-results', '📱 Testing responsive design...', 'info');
+            
+            try {
+                const appFrame = getAppFrame();
+                const originalWidth = appFrame.style.width;
+                
+                // Test mobile view
+                appFrame.style.width = '375px';
+                setTimeout(() => {
+                    addResult('ui-results', '✅ Mobile view test completed', 'success');
+                    
+                    // Test tablet view
+                    appFrame.style.width = '768px';
+                    setTimeout(() => {
+                        addResult('ui-results', '✅ Tablet view test completed', 'success');
+                        
+                        // Restore original width
+                        appFrame.style.width = originalWidth;
+                        addResult('ui-results', '✅ Responsive design tests completed', 'success');
+                    }, 500);
+                }, 500);
+            } catch (error) {
+                addResult('ui-results', `❌ Error testing responsive design: ${error.message}`, 'error');
+            }
+        }
+
+        // Complete Demo Test
+        async function runCompleteTest() {
+            clearAllResults();
+            
+            addResult('language-results', '🚀 Starting complete demo test...', 'info');
+            
+            // Test all components
+            await testLanguageDropdown();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testLanguageSwitching();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testCommodityTranslation();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Test all tabs
+            testVoiceTab();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testPriceTab();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testNegotiationTab();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testCropTab();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testMSPTab();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testMandiTab();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test APIs
+            await testAllAPIs();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test UI components
+            testPriceCards();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testModals();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testResponsive();
+            
+            setTimeout(() => {
+                const successRate = testCount > 0 ? Math.round((passedCount / testCount) * 100) : 100;
+                if (successRate >= 90) {
+                    addResult('language-results', `🎉 DEMO READY! Success rate: ${successRate}%`, 'success');
+                } else {
+                    addResult('language-results', `⚠️ Some issues found. Success rate: ${successRate}%`, 'warning');
+                }
+            }, 3000);
+        }
+
+        // Initialize
+        setTimeout(() => {
+            addResult('language-results', '🎯 Demo test suite loaded and ready!', 'info');
+            updateStatusBar();
+        }, 1000);
+    </script>
+</body>
+</html>

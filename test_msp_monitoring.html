@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSP Monitoring Test - MANDI EAR™</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test-container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .test-button {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🛡️ MSP Monitoring Test</h1>
+        <p>Testing the restored MSP Monitoring functionality from January 27th backup.</p>
+        
+        <div class="status" id="status">
+            Ready to test MSP Monitoring features...
+        </div>
+        
+        <button class="test-button" onclick="testMSPAPI()">
+            🔍 Test MSP API
+        </button>
+        
+        <button class="test-button" onclick="openMainApp()">
+            🌾 Open MANDI EAR™ Main App
+        </button>
+        
+        <div id="results" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; font-family: monospace;"></div>
+    </div>
+
+    <script>
+        async function testMSPAPI() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            statusDiv.innerHTML = '🔄 Testing MSP API endpoint...';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/msp/rates');
+                const data = await response.json();
+                
+                statusDiv.innerHTML = '✅ MSP API is working perfectly!';
+                resultsDiv.innerHTML = `
+                    <h3>MSP Rates Response:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                console.log('MSP API Response:', data);
+            } catch (error) {
+                statusDiv.innerHTML = '❌ Error testing MSP API: ' + error.message;
+                resultsDiv.innerHTML = `<div style="color: #ff6b6b;">Error: ${error.message}</div>`;
+            }
+        }
+        
+        function openMainApp() {
+            window.open('http://localhost:8001', '_blank');
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            setTimeout(testMSPAPI, 1000);
+        };
+    </script>
+</body>
+</html>

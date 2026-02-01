@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Dropdown Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-container { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Language Dropdown Fix Test</h1>
+    
+    <div class="test-container">
+        <h2>Current Status</h2>
+        <div id="results"></div>
+        <button onclick="runTests()">🧪 Run Tests</button>
+        <button onclick="testDropdown()">🌐 Test Dropdown</button>
+        <button onclick="fixDropdown()">🔧 Fix Dropdown</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>MANDI EAR Application</h2>
+        <iframe id="app-frame" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function runTests() {
+            addResult('🚀 Starting language dropdown tests...', 'info');
+            const frame = document.getElementById('app-frame');
+            
+            frame.onload = function() {
+                try {
+                    const frameWindow = frame.contentWindow;
+                    const frameDoc = frame.contentDocument;
+                    
+                    // Test 1: Check if elements exist
+                    const langDropdown = frameDoc.querySelector('.language-dropdown');
+                    const langOptions = frameDoc.getElementById('language-options');
+                    
+                    if (langDropdown) {
+                        addResult('✅ Language dropdown button found', 'success');
+                    } else {
+                        addResult('❌ Language dropdown button NOT found', 'error');
+                    }
+                    
+                    if (langOptions) {
+                        addResult('✅ Language options container found', 'success');
+                        addResult(`📊 Options container has ${langOptions.children.length} language options`, 'info');
+                    } else {
+                        addResult('❌ Language options container NOT found', 'error');
+                    }
+                    
+                    // Test 2: Check if function exists
+                    if (typeof frameWindow.toggleLanguageDropdown === 'function') {
+                        addResult('✅ toggleLanguageDropdown function exists', 'success');
+                    } else {
+                        addResult('❌ toggleLanguageDropdown function NOT found', 'error');
+                    }
+                    
+                    // Test 3: Check onclick attribute
+                    if (langDropdown) {
+                        const onclick = langDropdown.getAttribute('onclick');
+                        if (onclick && onclick.includes('toggleLanguageDropdown')) {
+                            addResult('✅ Onclick attribute correctly set', 'success');
+                        } else {
+                            addResult(`❌ Onclick attribute issue: ${onclick}`, 'error');
+                        }
+                    }
+                    
+                    // Test 4: Check CSS styles
+                    if (langOptions) {
+                        const computedStyle = frameWindow.getComputedStyle(langOptions);
+                        addResult(`📊 Display style: ${computedStyle.display}`, 'info');
+                        addResult(`📊 Position style: ${computedStyle.position}`, 'info');
+                        addResult(`📊 Z-index: ${computedStyle.zIndex}`, 'info');
+                    }
+                    
+                } catch (error) {
+                    addResult(`❌ Test error: ${error.message}`, 'error');
+                }
+            };
+            
+            // Reload the frame to trigger tests
+            frame.src = frame.src;
+        }
+
+        function testDropdown() {
+            addResult('🧪 Testing dropdown functionality...', 'info');
+            const frame = document.getElementById('app-frame');
+            
+            try {
+                const frameWindow = frame.contentWindow;
+                const frameDoc = frame.contentDocument;
+                
+                // Try to call the function
+                if (typeof frameWindow.toggleLanguageDropdown === 'function') {
+                    frameWindow.toggleLanguageDropdown();
+                    addResult('✅ toggleLanguageDropdown called successfully', 'success');
+                    
+                    // Check if dropdown opened
+                    setTimeout(() => {
+                        const langOptions = frameDoc.getElementById('language-options');
+                        if (langOptions && langOptions.classList.contains('show')) {
+                            addResult('✅ Dropdown opened successfully!', 'success');
+                        } else {
+                            addResult('❌ Dropdown did not open', 'error');
+                        }
+                    }, 100);
+                } else {
+                    addResult('❌ Cannot test - function not found', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Test error: ${error.message}`, 'error');
+            }
+        }
+
+        function fixDropdown() {
+            addResult('🔧 Attempting to fix dropdown...', 'info');
+            const frame = document.getElementById('app-frame');
+            
+            try {
+                const frameWindow = frame.contentWindow;
+                const frameDoc = frame.contentDocument;
+                
+                // Check for duplicate elements
+                const allLangOptions = frameDoc.querySelectorAll('#language-options');
+                if (allLangOptions.length > 1) {
+                    addResult(`⚠️ Found ${allLangOptions.length} elements with id 'language-options' - removing duplicates`, 'error');
+                    for (let i = 1; i < allLangOptions.length; i++) {
+                        allLangOptions[i].remove();
+                    }
+                    addResult('✅ Duplicate elements removed', 'success');
+                }
+                
+                // Re-attach event listener
+                const langDropdown = frameDoc.querySelector('.language-dropdown');
+                if (langDropdown) {
+                    langDropdown.onclick = function() {
+                        frameWindow.toggleLanguageDropdown();
+                    };
+                    addResult('✅ Event listener re-attached', 'success');
+                }
+                
+                addResult('🔧 Fix attempt completed - try testing again', 'info');
+                
+            } catch (error) {
+                addResult(`❌ Fix error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run tests when page loads
+        window.onload = function() {
+            setTimeout(runTests, 1000);
+        };
+    </script>
+</body>
+</html>

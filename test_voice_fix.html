@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Processing Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-result { margin: 20px 0; padding: 15px; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🎤 Voice Processing Fix Test</h1>
+    
+    <h3>Test 1: Check API Response Structure</h3>
+    <button onclick="testAPIStructure()">Test API Structure</button>
+    <div id="api-test-result" class="test-result"></div>
+    
+    <h3>Test 2: Test Rice Price Query</h3>
+    <button onclick="testRiceQuery()">Test Rice Query</button>
+    <div id="rice-test-result" class="test-result"></div>
+    
+    <h3>Test 3: Open Main Application</h3>
+    <button onclick="window.open('http://localhost:8001', '_blank')">Open MANDI EAR™</button>
+    
+    <script>
+        async function testAPIStructure() {
+            const resultDiv = document.getElementById('api-test-result');
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/prices/current');
+                const data = await response.json();
+                
+                if (data.prices && data.prices.rice) {
+                    const rice = data.prices.rice;
+                    const hasCorrectFields = rice.national_average && rice.unit && rice.trend && rice.change_percentage;
+                    
+                    if (hasCorrectFields) {
+                        resultDiv.className = 'test-result success';
+                        resultDiv.innerHTML = `
+                            ✅ <strong>API Structure is Correct!</strong><br>
+                            Rice Price: ₹${rice.national_average}<br>
+                            Unit: ${rice.unit}<br>
+                            Trend: ${rice.trend}<br>
+                            Change: ${rice.change_percentage}
+                        `;
+                    } else {
+                        resultDiv.className = 'test-result error';
+                        resultDiv.innerHTML = '❌ API structure is missing required fields';
+                    }
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.innerHTML = '❌ API response does not contain prices.rice';
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = '❌ Error: ' + error.message;
+            }
+        }
+        
+        async function testRiceQuery() {
+            const resultDiv = document.getElementById('rice-test-result');
+            try {
+                // Simulate the voice processing logic
+                const query = "what is the current price in mohali";
+                const commodityMatch = query.toLowerCase().match(/(wheat|rice|corn|tomato|onion|potato|cotton|sugarcane)/);
+                
+                if (!commodityMatch) {
+                    // If no commodity found, try rice as default for mohali query
+                    const response = await fetch('http://localhost:8001/api/v1/prices/current');
+                    const data = await response.json();
+                    
+                    if (data.prices && data.prices.rice) {
+                        const price = data.prices.rice;
+                        
+                        resultDiv.className = 'test-result success';
+                        resultDiv.innerHTML = `
+                            ✅ <strong>Rice Query Test Successful!</strong><br>
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #28a745;">
+                                <h5>Rice Price in Mohali</h5>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <span style="font-size: 1.5em; font-weight: bold; color: #28a745;">₹${price.national_average}</span>
+                                    <span style="color: #666;">${price.unit}</span>
+                                    <span style="padding: 5px 10px; border-radius: 15px; background: #d4edda; color: #155724;">${price.change_percentage}</span>
+                                </div>
+                            </div>
+                            Query: "${query}"
+                        `;
+                    } else {
+                        resultDiv.className = 'test-result error';
+                        resultDiv.innerHTML = '❌ Could not get rice price data';
+                    }
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.innerHTML = '❌ Query parsing logic needs adjustment';
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

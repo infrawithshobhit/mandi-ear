@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MANDI EAR Diagnostic</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; }
+        h1 { color: #2c5530; }
+        h2 { color: #495057; }
+        .status { font-weight: bold; }
+        .test-result { margin: 5px 0; padding: 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 MANDI EAR™ Diagnostic Tool</h1>
+        
+        <div class="test-section info">
+            <h2>📋 Quick Diagnostic</h2>
+            <button onclick="runFullDiagnostic()">🚀 Run Full Diagnostic</button>
+            <button onclick="testJavaScriptFunctions()">🔧 Test JavaScript Functions</button>
+            <button onclick="testModalSystem()">📱 Test Modal System</button>
+            <button onclick="testLanguageDropdown()">🌐 Test Language Dropdown</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div id="diagnostic-results"></div>
+        
+        <div class="test-section">
+            <h2>🌐 Live Application Test</h2>
+            <p>The main application should be loaded below. Try clicking the language dropdown and tabs:</p>
+            <iframe id="app-frame" src="http://localhost:8001" width="100%" height="800" style="border: 1px solid #ccc; border-radius: 5px;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        
+        function addResult(message, type = 'info', details = '') {
+            const timestamp = new Date().toLocaleTimeString();
+            testResults.push({ timestamp, message, type, details });
+            updateResultsDisplay();
+        }
+        
+        function updateResultsDisplay() {
+            const container = document.getElementById('diagnostic-results');
+            container.innerHTML = testResults.map(result => `
+                <div class="test-result ${result.type}">
+                    <strong>[${result.timestamp}]</strong> ${result.message}
+                    ${result.details ? `<div class="code">${result.details}</div>` : ''}
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function clearResults() {
+            testResults = [];
+            updateResultsDisplay();
+        }
+        
+        async function runFullDiagnostic() {
+            clearResults();
+            addResult('🚀 Starting full diagnostic...', 'info');
+            
+            // Test 1: Server connectivity
+            try {
+                const healthResponse = await fetch('http://localhost:8001/health');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    addResult('✅ Server Health: OK', 'success', `Status: ${healthData.status}`);
+                } else {
+                    addResult('❌ Server Health: Failed', 'error', `Status: ${healthResponse.status}`);
+                }
+            } catch (error) {
+                addResult('❌ Server Health: Connection Error', 'error', error.message);
+                return;
+            }
+            
+            // Test 2: Main page load
+            try {
+                const mainResponse = await fetch('http://localhost:8001/');
+                if (mainResponse.ok) {
+                    const html = await mainResponse.text();
+                    addResult('✅ Main Page: Loaded successfully', 'success', `Size: ${html.length} characters`);
+                    
+                    // Test 3: JavaScript function presence
+                    const functions = [
+                        'toggleLanguageDropdown',
+                        'selectLanguage',
+                        'openModal',
+                        'closeModal',
+                        'openVoiceProcessingTab',
+                        'openPriceDiscoveryTab',
+                        'openNegotiationTab',
+                        'openCropPlanningTab',
+                        'openMSPMonitoringTab',
+                        'openCrossMandiTab'
+                    ];
+                    
+                    let missingFunctions = [];
+                    functions.forEach(func => {
+                        if (html.includes(`function ${func}`)) {
+                            addResult(`✅ Function: ${func} found`, 'success');
+                        } else {
+                            missingFunctions.push(func);
+                            addResult(`❌ Function: ${func} missing`, 'error');
+                        }
+                    });
+                    
+                    // Test 4: HTML elements
+                    const elements = [
+                        'language-options',
+                        'voice-modal',
+                        'price-modal',
+                        'negotiation-modal',
+                        'crop-modal',
+                        'msp-modal',
+                        'mandi-modal'
+                    ];
+                    
+                    elements.forEach(element => {
+                        if (html.includes(`id="${element}"`)) {
+                            addResult(`✅ Element: ${element} found`, 'success');
+                        } else {
+                            addResult(`❌ Element: ${element} missing`, 'error');
+                        }
+                    });
+                    
+                    // Test 5: onclick handlers
+                    const onclicks = [
+                        'openVoiceProcessingTab()',
+                        'openPriceDiscoveryTab()',
+                        'openNegotiationTab()',
+                        'toggleLanguageDropdown()'
+                    ];
+                    
+                    onclicks.forEach(onclick => {
+                        if (html.includes(`onclick="${onclick}"`)) {
+                            addResult(`✅ Onclick: ${onclick} found`, 'success');
+                        } else {
+                            addResult(`❌ Onclick: ${onclick} missing`, 'error');
+                        }
+                    });
+                    
+                    // Test 6: JavaScript syntax check
+                    if (html.includes("couldn\\'t") || html.includes("you\\'re")) {
+                        addResult('❌ JavaScript Syntax: Unescaped apostrophes found', 'error');
+                    } else {
+                        addResult('✅ JavaScript Syntax: No obvious errors', 'success');
+                    }
+                    
+                } else {
+                    addResult('❌ Main Page: Failed to load', 'error', `Status: ${mainResponse.status}`);
+                }
+            } catch (error) {
+                addResult('❌ Main Page: Error', 'error', error.message);
+            }
+            
+            addResult('🏁 Diagnostic complete', 'info');
+        }
+        
+        function testJavaScriptFunctions() {
+            addResult('🔧 Testing JavaScript functions in iframe...', 'info');
+            
+            const frame = document.getElementById('app-frame');
+            
+            // Wait for frame to load
+            setTimeout(() => {
+                try {
+                    const frameWindow = frame.contentWindow;
+                    const frameDoc = frame.contentDocument;
+                    
+                    if (!frameWindow || !frameDoc) {
+                        addResult('❌ Cannot access iframe content (CORS or loading issue)', 'error');
+                        return;
+                    }
+                    
+                    // Test function existence
+                    const functions = [
+                        'toggleLanguageDropdown',
+                        'openVoiceProcessingTab',
+                        'openModal'
+                    ];
+                    
+                    functions.forEach(func => {
+                        if (typeof frameWindow[func] === 'function') {
+                            addResult(`✅ Function ${func} is callable`, 'success');
+                        } else {
+                            addResult(`❌ Function ${func} is not defined or not callable`, 'error');
+                        }
+                    });
+                    
+                    // Test element existence
+                    const languageDropdown = frameDoc.getElementById('language-options');
+                    if (languageDropdown) {
+                        addResult('✅ Language dropdown element found', 'success');
+                    } else {
+                        addResult('❌ Language dropdown element not found', 'error');
+                    }
+                    
+                } catch (error) {
+                    addResult('❌ Error testing iframe functions', 'error', error.message);
+                }
+            }, 2000);
+        }
+        
+        function testModalSystem() {
+            addResult('📱 Testing modal system...', 'info');
+            
+            const frame = document.getElementById('app-frame');
+            
+            setTimeout(() => {
+                try {
+                    const frameWindow = frame.contentWindow;
+                    const frameDoc = frame.contentDocument;
+                    
+                    // Try to find and click a modal button
+                    const voiceButton = frameDoc.querySelector('button[onclick*="openVoiceProcessingTab"]');
+                    if (voiceButton) {
+                        addResult('✅ Voice Processing button found', 'success');
+                        
+                        // Try to click it
+                        try {
+                            voiceButton.click();
+                            addResult('✅ Voice Processing button clicked', 'success');
+                            
+                            // Check if modal opened
+                            setTimeout(() => {
+                                const modal = frameDoc.getElementById('voice-modal');
+                                if (modal && modal.classList.contains('show')) {
+                                    addResult('✅ Voice modal opened successfully', 'success');
+                                } else {
+                                    addResult('❌ Voice modal did not open', 'error');
+                                }
+                            }, 500);
+                            
+                        } catch (error) {
+                            addResult('❌ Error clicking button', 'error', error.message);
+                        }
+                    } else {
+                        addResult('❌ Voice Processing button not found', 'error');
+                    }
+                    
+                } catch (error) {
+                    addResult('❌ Error testing modal system', 'error', error.message);
+                }
+            }, 2000);
+        }
+        
+        function testLanguageDropdown() {
+            addResult('🌐 Testing language dropdown...', 'info');
+            
+            const frame = document.getElementById('app-frame');
+            
+            setTimeout(() => {
+                try {
+                    const frameWindow = frame.contentWindow;
+                    const frameDoc = frame.contentDocument;
+                    
+                    // Find language dropdown
+                    const languageDropdown = frameDoc.querySelector('.language-dropdown');
+                    if (languageDropdown) {
+                        addResult('✅ Language dropdown found', 'success');
+                        
+                        // Try to click it
+                        try {
+                            languageDropdown.click();
+                            addResult('✅ Language dropdown clicked', 'success');
+                            
+                            // Check if options appeared
+                            setTimeout(() => {
+                                const options = frameDoc.getElementById('language-options');
+                                if (options && options.classList.contains('show')) {
+                                    addResult('✅ Language options opened', 'success');
+                                } else {
+                                    addResult('❌ Language options did not open', 'error');
+                                }
+                            }, 500);
+                            
+                        } catch (error) {
+                            addResult('❌ Error clicking language dropdown', 'error', error.message);
+                        }
+                    } else {
+                        addResult('❌ Language dropdown not found', 'error');
+                    }
+                    
+                } catch (error) {
+                    addResult('❌ Error testing language dropdown', 'error', error.message);
+                }
+            }, 2000);
+        }
+        
+        // Auto-run diagnostic when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                addResult('🔄 Auto-running diagnostic...', 'info');
+                runFullDiagnostic();
+            }, 1000);
+        };
+        
+        // Monitor iframe loading
+        document.getElementById('app-frame').onload = function() {
+            addResult('📱 Main application loaded in iframe', 'success');
+        };
+        
+        document.getElementById('app-frame').onerror = function() {
+            addResult('❌ Error loading main application in iframe', 'error');
+        };
+    </script>
+</body>
+</html>

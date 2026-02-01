@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MANDI EAR Quick Diagnostic</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>MANDI EAR Quick Diagnostic</h1>
+    <button onclick="runDiagnostic()">Run Full Diagnostic</button>
+    <button onclick="testLanguages()">Test Languages</button>
+    <button onclick="testModals()">Test Modals</button>
+    <div id="results"></div>
+
+    <script>
+        function addResult(message, type) {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function runDiagnostic() {
+            clearResults();
+            addResult('Starting diagnostic...', 'success');
+
+            // Test server
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    addResult('✅ Server is running', 'success');
+                } else {
+                    addResult('❌ Server health check failed', 'error');
+                }
+            } catch (e) {
+                addResult('❌ Cannot connect to server', 'error');
+            }
+
+            // Test APIs
+            const apis = ['/api/v1/prices/current', '/api/v1/mandis', '/api/v1/test'];
+            for (const api of apis) {
+                try {
+                    const response = await fetch(api);
+                    if (response.ok) {
+                        addResult(`✅ ${api} working`, 'success');
+                    } else {
+                        addResult(`❌ ${api} failed (${response.status})`, 'error');
+                    }
+                } catch (e) {
+                    addResult(`❌ ${api} error: ${e.message}`, 'error');
+                }
+            }
+
+            // Test main page elements
+            try {
+                const mainResponse = await fetch('/');
+                const html = await mainResponse.text();
+                
+                const checks = [
+                    { name: 'Language dropdown', test: html.includes('language-dropdown') },
+                    { name: 'Price cards', test: html.includes('price-card') },
+                    { name: 'Feature cards', test: html.includes('feature-card') },
+                    { name: 'Voice modal', test: html.includes('voice-modal') },
+                    { name: 'Price modal', test: html.includes('price-modal') },
+                    { name: 'Negotiation modal', test: html.includes('negotiation-modal') },
+                    { name: 'Crop modal', test: html.includes('crop-modal') },
+                    { name: 'MSP modal', test: html.includes('msp-modal') },
+                    { name: 'Mandi modal', test: html.includes('mandi-modal') },
+                    { name: 'Modal overlay', test: html.includes('modal-overlay') },
+                    { name: 'Translation functions', test: html.includes('selectLanguage') && html.includes('updateUILanguage') },
+                    { name: 'Modal functions', test: html.includes('openModal') && html.includes('closeModal') }
+                ];
+
+                checks.forEach(check => {
+                    if (check.test) {
+                        addResult(`✅ ${check.name} found`, 'success');
+                    } else {
+                        addResult(`❌ ${check.name} missing`, 'error');
+                    }
+                });
+
+            } catch (e) {
+                addResult(`❌ Main page test failed: ${e.message}`, 'error');
+            }
+
+            addResult('Diagnostic complete!', 'success');
+        }
+
+        async function testLanguages() {
+            clearResults();
+            addResult('Testing language functionality...', 'success');
+            
+            // Open main page in iframe and test language switching
+            const iframe = document.createElement('iframe');
+            iframe.src = '/';
+            iframe.style.width = '100%';
+            iframe.style.height = '400px';
+            iframe.style.border = '1px solid #ccc';
+            
+            iframe.onload = function() {
+                const frameWindow = iframe.contentWindow;
+                const frameDoc = iframe.contentDocument;
+                
+                // Test language dropdown exists
+                const dropdown = frameDoc.getElementById('language-dropdown');
+                if (dropdown) {
+                    addResult('✅ Language dropdown found', 'success');
+                } else {
+                    addResult('❌ Language dropdown not found', 'error');
+                    return;
+                }
+
+                // Test language options
+                const options = frameDoc.getElementById('language-options');
+                if (options) {
+                    const langOptions = options.querySelectorAll('.language-option');
+                    addResult(`✅ Found ${langOptions.length} language options`, 'success');
+                } else {
+                    addResult('❌ Language options not found', 'error');
+                }
+
+                // Test selectLanguage function
+                if (typeof frameWindow.selectLanguage === 'function') {
+                    addResult('✅ selectLanguage function exists', 'success');
+                    
+                    // Test language switching
+                    try {
+                        frameWindow.selectLanguage('hi', 'हिंदी', '🇮🇳');
+                        setTimeout(() => {
+                            const heroTitle = frameDoc.querySelector('[data-translate="hero-title"]');
+                            if (heroTitle && heroTitle.textContent.includes('कृषि')) {
+                                addResult('✅ Language translation working', 'success');
+                            } else {
+                                addResult('⚠️ Language translation may not be working', 'warning');
+                            }
+                        }, 500);
+                    } catch (e) {
+                        addResult(`❌ Language switching error: ${e.message}`, 'error');
+                    }
+                } else {
+                    addResult('❌ selectLanguage function not found', 'error');
+                }
+            };
+            
+            document.body.appendChild(iframe);
+        }
+
+        async function testModals() {
+            clearResults();
+            addResult('Testing modal functionality...', 'success');
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = '/';
+            iframe.style.width = '100%';
+            iframe.style.height = '400px';
+            iframe.style.border = '1px solid #ccc';
+            
+            iframe.onload = function() {
+                const frameWindow = iframe.contentWindow;
+                const frameDoc = iframe.contentDocument;
+                
+                // Test all modals exist
+                const modals = ['voice-modal', 'price-modal', 'negotiation-modal', 'crop-modal', 'msp-modal', 'mandi-modal'];
+                modals.forEach(modalId => {
+                    const modal = frameDoc.getElementById(modalId);
+                    if (modal) {
+                        addResult(`✅ ${modalId} exists`, 'success');
+                    } else {
+                        addResult(`❌ ${modalId} missing`, 'error');
+                    }
+                });
+
+                // Test modal overlay
+                const overlay = frameDoc.getElementById('modal-overlay');
+                if (overlay) {
+                    addResult('✅ Modal overlay exists', 'success');
+                } else {
+                    addResult('❌ Modal overlay missing', 'error');
+                }
+
+                // Test modal functions
+                if (typeof frameWindow.openModal === 'function') {
+                    addResult('✅ openModal function exists', 'success');
+                } else {
+                    addResult('❌ openModal function missing', 'error');
+                }
+
+                if (typeof frameWindow.closeModal === 'function') {
+                    addResult('✅ closeModal function exists', 'success');
+                } else {
+                    addResult('❌ closeModal function missing', 'error');
+                }
+
+                // Test modal buttons
+                const modalButtons = frameDoc.querySelectorAll('button[onclick*="modal"]');
+                addResult(`✅ Found ${modalButtons.length} modal trigger buttons`, 'success');
+            };
+            
+            document.body.appendChild(iframe);
+        }
+    </script>
+</body>
+</html>

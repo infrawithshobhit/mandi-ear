@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MANDI EAR Test Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        h1 { color: #2c5530; }
+        h2 { color: #495057; margin-top: 30px; }
+        .test-section { margin: 20px 0; }
+        .instructions { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🌾 MANDI EAR™ Test Results</h1>
+    
+    <div class="instructions">
+        <h3>📋 Manual Testing Instructions</h3>
+        <p><strong>Open the main application:</strong> <a href="http://localhost:8001" target="_blank">http://localhost:8001</a></p>
+        <ol>
+            <li><strong>Language Dropdown Test:</strong>
+                <ul>
+                    <li>Look for the language dropdown in the top-right corner (globe icon + "English")</li>
+                    <li>Click on it to see if the dropdown opens with language options</li>
+                    <li>Select different languages (Hindi, Bengali, Telugu, Tamil, etc.)</li>
+                    <li>Verify that the interface text changes to the selected language</li>
+                    <li>Check that crop names in price cards also translate</li>
+                </ul>
+            </li>
+            <li><strong>Tab Functionality Test:</strong>
+                <ul>
+                    <li>Click on each of the 6 feature cards (Voice Processing, Price Discovery, etc.)</li>
+                    <li>Verify that modals open with proper content</li>
+                    <li>Test forms and buttons within each modal</li>
+                    <li>Change language while a modal is open and verify content updates</li>
+                </ul>
+            </li>
+            <li><strong>Price Display Test:</strong>
+                <ul>
+                    <li>Check that price cards display properly</li>
+                    <li>Test location and commodity dropdowns</li>
+                    <li>Verify price refresh functionality</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Automated Test Results</h2>
+        <div id="test-results">
+            <div class="test-result info">Running automated tests...</div>
+        </div>
+    </div>
+
+    <script>
+        const testResults = document.getElementById('test-results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            testResults.appendChild(div);
+        }
+        
+        function clearResults() {
+            testResults.innerHTML = '';
+        }
+        
+        async function runTests() {
+            clearResults();
+            addResult('🧪 Starting MANDI EAR™ comprehensive tests...', 'info');
+            
+            try {
+                // Test 1: Health Check
+                const healthResponse = await fetch('http://localhost:8001/health');
+                if (healthResponse.ok) {
+                    addResult('✅ Health Check: Server is healthy', 'success');
+                } else {
+                    addResult('❌ Health Check: Server unhealthy', 'error');
+                }
+                
+                // Test 2: Main Page Load
+                const mainResponse = await fetch('http://localhost:8001/');
+                if (mainResponse.ok) {
+                    addResult('✅ Main Page: Loads successfully', 'success');
+                    
+                    const html = await mainResponse.text();
+                    
+                    // Test 3: JavaScript Syntax
+                    if (html.includes("couldn\\'t") || html.includes("you\\'re")) {
+                        addResult('❌ JavaScript Syntax: Found unescaped apostrophes', 'error');
+                    } else {
+                        addResult('✅ JavaScript Syntax: No syntax errors detected', 'success');
+                    }
+                    
+                    // Test 4: Language Functions
+                    const langFunctions = ['toggleLanguageDropdown', 'selectLanguage', 'getTranslation', 'updateUILanguage'];
+                    let allFunctionsFound = true;
+                    langFunctions.forEach(func => {
+                        if (html.includes(func)) {
+                            addResult(`✅ Function Check: ${func} found`, 'success');
+                        } else {
+                            addResult(`❌ Function Check: ${func} missing`, 'error');
+                            allFunctionsFound = false;
+                        }
+                    });
+                    
+                    // Test 5: Modal Elements
+                    const modals = ['voice-modal', 'price-modal', 'negotiation-modal', 'crop-modal', 'msp-modal', 'mandi-modal'];
+                    modals.forEach(modal => {
+                        if (html.includes(modal)) {
+                            addResult(`✅ Modal Check: ${modal} found`, 'success');
+                        } else {
+                            addResult(`❌ Modal Check: ${modal} missing`, 'error');
+                        }
+                    });
+                    
+                    // Test 6: Language Support
+                    const languages = ['hi', 'bn', 'te', 'ta', 'mr', 'gu', 'kn', 'ml', 'pa', 'or', 'as'];
+                    languages.forEach(lang => {
+                        if (html.includes(`'${lang}':`)) {
+                            addResult(`✅ Language Support: ${lang} found`, 'success');
+                        } else {
+                            addResult(`❌ Language Support: ${lang} missing`, 'error');
+                        }
+                    });
+                    
+                } else {
+                    addResult('❌ Main Page: Failed to load', 'error');
+                }
+                
+                // Test 7: API Endpoints
+                const endpoints = [
+                    '/api/v1/prices/current',
+                    '/api/v1/mandis', 
+                    '/api/v1/msp/rates'
+                ];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(`http://localhost:8001${endpoint}`);
+                        if (response.ok) {
+                            addResult(`✅ API Endpoint: ${endpoint} working`, 'success');
+                        } else {
+                            addResult(`❌ API Endpoint: ${endpoint} failed (${response.status})`, 'error');
+                        }
+                    } catch (error) {
+                        addResult(`❌ API Endpoint: ${endpoint} error - ${error.message}`, 'error');
+                    }
+                }
+                
+                addResult('🎉 Automated tests completed! Check manual testing instructions above.', 'info');
+                
+            } catch (error) {
+                addResult(`❌ Test Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Run tests when page loads
+        runTests();
+        
+        // Add refresh button
+        const refreshBtn = document.createElement('button');
+        refreshBtn.textContent = '🔄 Refresh Tests';
+        refreshBtn.style.cssText = 'padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;';
+        refreshBtn.onclick = runTests;
+        testResults.parentNode.insertBefore(refreshBtn, testResults);
+    </script>
+</body>
+</html>

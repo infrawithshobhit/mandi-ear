@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Version Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Clean Version Test</h1>
+    
+    <button onclick="testDropdown()">Test Language Dropdown</button>
+    <button onclick="testTranslation()">Test Hindi Translation</button>
+    <button onclick="testPrices()">Test Price Loading</button>
+    
+    <div id="results"></div>
+    
+    <iframe id="app" src="http://localhost:8001"></iframe>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function testDropdown() {
+            log('🧪 Testing language dropdown...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                // Check if dropdown exists
+                const dropdown = iframeDoc.querySelector('.language-dropdown');
+                const options = iframeDoc.getElementById('language-options');
+                
+                if (dropdown && options) {
+                    log('✅ Dropdown elements found', 'success');
+                    
+                    // Test click
+                    dropdown.click();
+                    
+                    setTimeout(() => {
+                        if (options.classList.contains('show')) {
+                            log('✅ Dropdown opened successfully!', 'success');
+                        } else {
+                            log('❌ Dropdown did not open', 'error');
+                        }
+                    }, 200);
+                    
+                } else {
+                    log('❌ Dropdown elements not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testTranslation() {
+            log('🌍 Testing Hindi translation...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                const iframeDoc = iframe.contentDocument;
+                
+                // Find and click Hindi option
+                const hindiOption = iframeDoc.querySelector('[onclick*="selectLanguage(\'hi\'"]');
+                if (hindiOption) {
+                    hindiOption.click();
+                    log('✅ Hindi option clicked', 'success');
+                    
+                    setTimeout(() => {
+                        const heroTitle = iframeDoc.querySelector('[data-translate="hero-title"]');
+                        if (heroTitle && heroTitle.textContent.includes('कृषि')) {
+                            log('✅ Content translated to Hindi!', 'success');
+                        } else {
+                            log('❌ Translation failed', 'error');
+                        }
+                    }, 500);
+                    
+                } else {
+                    log('❌ Hindi option not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testPrices() {
+            log('💰 Testing price loading...', 'info');
+            const iframe = document.getElementById('app');
+            
+            try {
+                const iframeDoc = iframe.contentDocument;
+                const priceGrid = iframeDoc.getElementById('price-grid');
+                
+                if (priceGrid && priceGrid.children.length > 0) {
+                    log(`✅ ${priceGrid.children.length} price cards loaded`, 'success');
+                } else {
+                    log('❌ No price cards found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test when iframe loads
+        document.getElementById('app').onload = function() {
+            setTimeout(() => {
+                log('🚀 Running automatic tests...', 'info');
+                testPrices();
+                setTimeout(testDropdown, 1000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

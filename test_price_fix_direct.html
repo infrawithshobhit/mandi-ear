@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Price Fix Test - MANDI EAR™</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .test-button:hover { background: #0056b3; }
+        .results { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        .price-card { background: linear-gradient(135deg, #fff3cd, #ffeaa7); padding: 15px; border-radius: 10px; border: 2px solid #f39c12; margin: 10px 0; }
+        .commodity-name { font-weight: bold; color: #2c5530; margin-bottom: 8px; }
+        .price-value { font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 5px; }
+        .price-details { font-size: 0.9em; color: #666; }
+        .api-response { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 5px; font-family: monospace; margin: 10px 0; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Direct Price Fix Test</h1>
+        
+        <p><strong>Purpose:</strong> Test the exact same logic used in Price Discovery modal to verify the fix is working.</p>
+        
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="testPriceDisplay()">🧪 Test Price Display Logic</button>
+            <button class="test-button" onclick="testAPIResponse()">📊 Test API Response</button>
+            <button class="test-button" onclick="clearCache()">🔄 Clear Cache & Reload</button>
+        </div>
+        
+        <div id="test-results" class="results">
+            <p>Click "Test Price Display Logic" to verify the fix is working correctly.</p>
+        </div>
+    </div>
+
+    <script>
+        // This is the EXACT same logic used in the Price Discovery modal after the fix
+        async function testPriceDisplay() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div style="color: #007bff; font-weight: bold;">🧪 Testing price display logic...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/prices/current');
+                const data = await response.json();
+                
+                let results = '<h4>📊 Price Analysis Results (Using Fixed Logic)</h4>';
+                
+                // Test the EXACT same code from searchPrices function
+                results += '<div class="price-grid">';
+                Object.entries(data.prices).forEach(([key, price]) => {
+                    const commodityName = key.charAt(0).toUpperCase() + key.slice(1);
+                    
+                    // FIXED CODE: Using price.national_average instead of price.price
+                    const priceValue = price.national_average; // This should show actual values
+                    const changeValue = price.change_percentage; // This should show actual percentages
+                    
+                    results += `
+                        <div class="price-card">
+                            <div class="commodity-name">${commodityName}</div>
+                            <div class="price-value">₹${priceValue}</div>
+                            <div class="price-details">
+                                <span>${price.unit}</span>
+                                <span class="trend ${price.trend}">${changeValue}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                results += '</div>';
+                
+                // Show comparison
+                results += '<h4>🔍 Field Comparison</h4>';
+                const firstCommodity = Object.keys(data.prices)[0];
+                const firstPrice = data.prices[firstCommodity];
+                
+                results += `
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <strong>Sample Commodity: ${firstCommodity}</strong><br>
+                        <strong>OLD (Broken):</strong> price.price = ${firstPrice.price || 'undefined'}<br>
+                        <strong>NEW (Fixed):</strong> price.national_average = ${firstPrice.national_average}<br>
+                        <strong>OLD (Broken):</strong> price.change = ${firstPrice.change || 'undefined'}<br>
+                        <strong>NEW (Fixed):</strong> price.change_percentage = ${firstPrice.change_percentage}
+                    </div>
+                `;
+                
+                resultsDiv.innerHTML = results;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div style="color: #dc3545; font-weight: bold;">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testAPIResponse() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div style="color: #007bff; font-weight: bold;">📊 Testing API response structure...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/v1/prices/current');
+                const data = await response.json();
+                
+                let results = '<h4>📊 API Response Structure</h4>';
+                results += '<div class="api-response">' + JSON.stringify(data, null, 2) + '</div>';
+                
+                resultsDiv.innerHTML = results;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div style="color: #dc3545; font-weight: bold;">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        function clearCache() {
+            // Force reload without cache
+            window.location.reload(true);
+        }
+        
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testPriceDisplay, 1000);
+        });
+    </script>
+</body>
+</html>

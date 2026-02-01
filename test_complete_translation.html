@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Translation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-container { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        iframe { width: 100%; height: 700px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 12px 24px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #0056b3; }
+        .language-btn { background: #28a745; }
+        .language-btn:hover { background: #218838; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🌍 Complete Translation Test - EVERYTHING Should Translate</h1>
+    
+    <div class="test-container">
+        <h2>🧪 Language Tests</h2>
+        <div class="test-grid">
+            <button onclick="testLanguage('hi', 'Hindi')" class="language-btn">🇮🇳 Test Hindi</button>
+            <button onclick="testLanguage('bn', 'Bengali')" class="language-btn">🇧🇩 Test Bengali</button>
+            <button onclick="testLanguage('te', 'Telugu')" class="language-btn">🇮🇳 Test Telugu</button>
+            <button onclick="testLanguage('ta', 'Tamil')" class="language-btn">🇮🇳 Test Tamil</button>
+            <button onclick="testLanguage('en', 'English')" class="language-btn">🇺🇸 Reset to English</button>
+        </div>
+        <button onclick="runCompleteTest()">🚀 Run Complete Translation Test</button>
+        <button onclick="clearResults()">🧹 Clear Results</button>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>📋 Translation Coverage Checklist</h2>
+        <div id="checklist">
+            <div>✅ Hero Section (Title, Subtitle)</div>
+            <div>✅ Stats Bar (Languages, Mandis, Monitoring, Powered)</div>
+            <div>✅ System Status Badge</div>
+            <div>✅ Section Titles (Live Market Prices)</div>
+            <div>✅ Dropdown Labels (All Mandis, All Commodities)</div>
+            <div>✅ Button Text (Refresh Prices, Test Voice API)</div>
+            <div>✅ Feature Titles & Descriptions</div>
+            <div>✅ Commodity Names in Price Cards</div>
+            <div>✅ Unit Text (per quintal)</div>
+            <div>✅ Location Names</div>
+            <div>✅ Tab Content (when opened)</div>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>🖥️ MANDI EAR Application</h2>
+        <iframe id="app-frame" src="http://localhost:8001"></iframe>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function getAppFrame() {
+            return document.getElementById('app-frame');
+        }
+
+        function getAppWindow() {
+            return getAppFrame().contentWindow;
+        }
+
+        function getAppDocument() {
+            return getAppFrame().contentDocument;
+        }
+
+        function testLanguage(langCode, langName) {
+            addResult(`🌍 Testing ${langName} (${langCode}) translation...`, 'info');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // Find and click the language dropdown
+                const dropdown = appDoc.querySelector('.language-dropdown');
+                if (!dropdown) {
+                    addResult('❌ Language dropdown not found', 'error');
+                    return;
+                }
+                
+                dropdown.click();
+                addResult('📂 Language dropdown opened', 'info');
+                
+                setTimeout(() => {
+                    // Find the specific language option
+                    const langOption = appDoc.querySelector(`[onclick*="selectLanguage('${langCode}'"]`);
+                    if (!langOption) {
+                        addResult(`❌ ${langName} option not found`, 'error');
+                        return;
+                    }
+                    
+                    langOption.click();
+                    addResult(`✅ ${langName} option clicked`, 'success');
+                    
+                    // Wait for translation to complete
+                    setTimeout(() => {
+                        verifyTranslation(langCode, langName);
+                    }, 1000);
+                    
+                }, 500);
+                
+            } catch (error) {
+                addResult(`❌ Error testing ${langName}: ${error.message}`, 'error');
+            }
+        }
+
+        function verifyTranslation(langCode, langName) {
+            const appDoc = getAppDocument();
+            let translatedCount = 0;
+            let totalChecked = 0;
+            
+            // Expected translations for different languages
+            const expectedTranslations = {
+                'hi': {
+                    'hero-title': 'कृषि बुद्धिमत्ता मंच',
+                    'languages': 'भाषाएं',
+                    'mandis': 'मंडियां',
+                    'system-operational': 'सिस्टम चालू',
+                    'live-prices': 'लाइव बाजार भाव',
+                    'all-mandis': 'सभी मंडियां',
+                    'refresh-prices': 'भाव रिफ्रेश करें',
+                    'voice-processing': 'आवाज प्रसंस्करण'
+                },
+                'bn': {
+                    'hero-title': 'কৃষি বুদ্ধিমত্তা প্ল্যাটফর্ম',
+                    'languages': 'ভাষা',
+                    'mandis': 'মান্ডি',
+                    'system-operational': 'সিস্টেম চালু',
+                    'live-prices': 'লাইভ বাজার মূল্য',
+                    'all-mandis': 'সব মান্ডি',
+                    'refresh-prices': 'দাম রিফ্রেশ করুন'
+                },
+                'te': {
+                    'hero-title': 'వ్యవసాయ మేధస్సు వేదిక',
+                    'languages': 'భాషలు',
+                    'mandis': 'మండీలు',
+                    'system-operational': 'సిస్టమ్ పనిచేస్తోంది',
+                    'live-prices': 'ప్రత్యక్ష మార్కెట్ ధరలు'
+                },
+                'ta': {
+                    'hero-title': 'விவசாய நுண்ணறிவு தளம்',
+                    'languages': 'மொழிகள்',
+                    'mandis': 'மண்டிகள்',
+                    'system-operational': 'அமைப்பு செயல்படுகிறது',
+                    'live-prices': 'நேரடி சந்தை விலைகள்'
+                },
+                'en': {
+                    'hero-title': 'Agricultural Intelligence Platform',
+                    'languages': 'Languages',
+                    'mandis': 'Mandis',
+                    'system-operational': 'System Operational',
+                    'live-prices': 'Live Market Prices'
+                }
+            };
+            
+            const expected = expectedTranslations[langCode] || expectedTranslations['en'];
+            
+            // Check key elements
+            Object.keys(expected).forEach(key => {
+                const element = appDoc.querySelector(`[data-translate="${key}"]`);
+                totalChecked++;
+                
+                if (element) {
+                    const actualText = element.textContent.trim();
+                    const expectedText = expected[key];
+                    
+                    if (actualText === expectedText) {
+                        addResult(`✅ "${key}": "${actualText}"`, 'success');
+                        translatedCount++;
+                    } else {
+                        addResult(`❌ "${key}": Expected "${expectedText}", Got "${actualText}"`, 'error');
+                    }
+                } else {
+                    addResult(`⚠️ Element with data-translate="${key}" not found`, 'warning');
+                }
+            });
+            
+            // Check commodity names in price cards
+            const priceCards = appDoc.querySelectorAll('.price-card');
+            if (priceCards.length > 0) {
+                addResult(`📊 Found ${priceCards.length} price cards`, 'info');
+                
+                let commodityTranslated = 0;
+                priceCards.forEach((card, index) => {
+                    const commodityName = card.querySelector('.commodity-name');
+                    const unitText = card.querySelector('.unit-text');
+                    
+                    if (commodityName) {
+                        const text = commodityName.textContent;
+                        // Check if it contains non-English characters (basic check)
+                        if (langCode !== 'en' && (/[\u0900-\u097F]|[\u0980-\u09FF]|[\u0C00-\u0C7F]|[\u0B80-\u0BFF]/.test(text))) {
+                            commodityTranslated++;
+                        } else if (langCode === 'en' && !/[\u0900-\u097F]|[\u0980-\u09FF]|[\u0C00-\u0C7F]|[\u0B80-\u0BFF]/.test(text)) {
+                            commodityTranslated++;
+                        }
+                    }
+                });
+                
+                if (commodityTranslated > 0) {
+                    addResult(`✅ ${commodityTranslated}/${priceCards.length} commodity names translated`, 'success');
+                } else {
+                    addResult(`❌ No commodity names appear to be translated`, 'error');
+                }
+            } else {
+                addResult('⚠️ No price cards found', 'warning');
+            }
+            
+            // Calculate success rate
+            const successRate = totalChecked > 0 ? (translatedCount / totalChecked * 100).toFixed(1) : 0;
+            addResult(`📈 Translation Success Rate: ${successRate}% (${translatedCount}/${totalChecked})`, 
+                     successRate > 80 ? 'success' : successRate > 50 ? 'warning' : 'error');
+            
+            if (successRate > 80) {
+                addResult(`🎉 ${langName} translation is working excellently!`, 'success');
+            } else if (successRate > 50) {
+                addResult(`⚠️ ${langName} translation is partially working`, 'warning');
+            } else {
+                addResult(`❌ ${langName} translation needs significant improvement`, 'error');
+            }
+        }
+
+        function runCompleteTest() {
+            addResult('🚀 Starting complete translation test for all languages...', 'info');
+            
+            // Test each language with delays
+            setTimeout(() => testLanguage('hi', 'Hindi'), 1000);
+            setTimeout(() => testLanguage('bn', 'Bengali'), 5000);
+            setTimeout(() => testLanguage('te', 'Telugu'), 9000);
+            setTimeout(() => testLanguage('ta', 'Tamil'), 13000);
+            setTimeout(() => testLanguage('en', 'English'), 17000);
+            
+            setTimeout(() => {
+                addResult('🏁 Complete translation test finished!', 'info');
+            }, 21000);
+        }
+
+        // Auto-run basic test when iframe loads
+        document.getElementById('app-frame').onload = function() {
+            setTimeout(() => {
+                addResult('🌐 Application loaded, ready for translation testing', 'info');
+                addResult('👆 Click any language button above to test translation', 'info');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

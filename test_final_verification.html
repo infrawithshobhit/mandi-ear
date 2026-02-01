@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Language Dropdown Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-panel { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 12px 24px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 20px 0; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-pass { background: #28a745; }
+        .status-fail { background: #dc3545; }
+        .status-pending { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Final Language Dropdown Verification</h1>
+        
+        <div class="test-panel">
+            <h2>🧪 Test Controls</h2>
+            <div class="test-grid">
+                <button onclick="runFullTest()">🚀 Run Full Test</button>
+                <button onclick="testDropdownOpen()">📂 Test Dropdown Open</button>
+                <button onclick="testLanguageSwitch()">🔄 Test Language Switch</button>
+                <button onclick="testTranslation()">🌍 Test Translation</button>
+                <button onclick="clearResults()">🧹 Clear Results</button>
+                <button onclick="openConsole()" class="success">📊 View Console</button>
+            </div>
+        </div>
+        
+        <div class="test-panel">
+            <h2>📋 Test Results</h2>
+            <div id="results"></div>
+        </div>
+        
+        <div class="test-panel">
+            <h2>🖥️ MANDI EAR Application</h2>
+            <iframe id="app-frame" src="http://localhost:8001"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        
+        function addResult(message, type = 'info', testName = 'General') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            
+            const statusClass = type === 'success' ? 'status-pass' : type === 'error' ? 'status-fail' : 'status-pending';
+            const timestamp = new Date().toLocaleTimeString();
+            
+            div.innerHTML = `
+                <span class="status-indicator ${statusClass}"></span>
+                <strong>[${testName}]</strong> ${message}
+                <small style="float: right; opacity: 0.7;">${timestamp}</small>
+            `;
+            
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            
+            testResults.push({ testName, message, type, timestamp });
+            console.log(`[${type.toUpperCase()}] ${testName}: ${message}`);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            testResults = [];
+            addResult('Test results cleared', 'info', 'System');
+        }
+
+        function getAppFrame() {
+            return document.getElementById('app-frame');
+        }
+
+        function getAppWindow() {
+            return getAppFrame().contentWindow;
+        }
+
+        function getAppDocument() {
+            return getAppFrame().contentDocument;
+        }
+
+        function runFullTest() {
+            addResult('Starting comprehensive language dropdown test...', 'info', 'Full Test');
+            
+            setTimeout(() => testDropdownOpen(), 500);
+            setTimeout(() => testLanguageSwitch(), 2000);
+            setTimeout(() => testTranslation(), 4000);
+            setTimeout(() => generateReport(), 6000);
+        }
+
+        function testDropdownOpen() {
+            addResult('Testing dropdown opening functionality...', 'info', 'Dropdown Open');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // Check if elements exist
+                const dropdown = appDoc.querySelector('.language-dropdown');
+                const options = appDoc.getElementById('language-options');
+                
+                if (!dropdown) {
+                    addResult('Language dropdown button not found', 'error', 'Dropdown Open');
+                    return;
+                }
+                
+                if (!options) {
+                    addResult('Language options container not found', 'error', 'Dropdown Open');
+                    return;
+                }
+                
+                addResult('Dropdown elements found successfully', 'success', 'Dropdown Open');
+                
+                // Check if function exists
+                if (typeof appWindow.toggleLanguageDropdown !== 'function') {
+                    addResult('toggleLanguageDropdown function not found', 'error', 'Dropdown Open');
+                    return;
+                }
+                
+                addResult('toggleLanguageDropdown function found', 'success', 'Dropdown Open');
+                
+                // Test dropdown opening
+                const initialDisplay = window.getComputedStyle(options).display;
+                addResult(`Initial dropdown display: ${initialDisplay}`, 'info', 'Dropdown Open');
+                
+                // Call the function
+                appWindow.toggleLanguageDropdown();
+                
+                setTimeout(() => {
+                    const newDisplay = window.getComputedStyle(options).display;
+                    const hasShowClass = options.classList.contains('show');
+                    
+                    addResult(`After toggle - Display: ${newDisplay}, Show class: ${hasShowClass}`, 'info', 'Dropdown Open');
+                    
+                    if (hasShowClass && newDisplay !== 'none') {
+                        addResult('✅ Dropdown opened successfully!', 'success', 'Dropdown Open');
+                    } else {
+                        addResult('❌ Dropdown failed to open', 'error', 'Dropdown Open');
+                    }
+                }, 300);
+                
+            } catch (error) {
+                addResult(`Error testing dropdown: ${error.message}`, 'error', 'Dropdown Open');
+            }
+        }
+
+        function testLanguageSwitch() {
+            addResult('Testing language switching functionality...', 'info', 'Language Switch');
+            
+            try {
+                const appWindow = getAppWindow();
+                const appDoc = getAppDocument();
+                
+                // First ensure dropdown is open
+                const options = appDoc.getElementById('language-options');
+                if (!options.classList.contains('show')) {
+                    appWindow.toggleLanguageDropdown();
+                    addResult('Opened dropdown for language switch test', 'info', 'Language Switch');
+                }
+                
+                // Find Hindi option
+                const hindiOption = appDoc.querySelector('[onclick*="selectLanguage(\'hi\'"]');
+                if (!hindiOption) {
+                    addResult('Hindi language option not found', 'error', 'Language Switch');
+                    return;
+                }
+                
+                addResult('Hindi language option found', 'success', 'Language Switch');
+                
+                // Get current language display
+                const currentLangSpan = appDoc.getElementById('current-language');
+                const initialLang = currentLangSpan ? currentLangSpan.textContent : 'Unknown';
+                addResult(`Current language: ${initialLang}`, 'info', 'Language Switch');
+                
+                // Click Hindi option
+                hindiOption.click();
+                
+                setTimeout(() => {
+                    const newLang = currentLangSpan ? currentLangSpan.textContent : 'Unknown';
+                    addResult(`Language after switch: ${newLang}`, 'info', 'Language Switch');
+                    
+                    if (newLang !== initialLang && newLang.includes('हिंदी')) {
+                        addResult('✅ Language switched to Hindi successfully!', 'success', 'Language Switch');
+                    } else {
+                        addResult('❌ Language switch failed', 'error', 'Language Switch');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                addResult(`Error testing language switch: ${error.message}`, 'error', 'Language Switch');
+            }
+        }
+
+        function testTranslation() {
+            addResult('Testing content translation...', 'info', 'Translation');
+            
+            try {
+                const appDoc = getAppDocument();
+                
+                // Check for translated elements
+                const elementsToCheck = [
+                    { selector: '[data-translate="languages"]', expected: 'भाषाएं' },
+                    { selector: '[data-translate="mandis"]', expected: 'मंडियां' },
+                    { selector: '[data-translate="monitoring"]', expected: 'निगरानी' },
+                    { selector: '[data-translate="system-operational"]', expected: 'सिस्टम चालू' }
+                ];
+                
+                let translatedCount = 0;
+                let totalCount = elementsToCheck.length;
+                
+                elementsToCheck.forEach(({ selector, expected }) => {
+                    const element = appDoc.querySelector(selector);
+                    if (element) {
+                        const actualText = element.textContent.trim();
+                        if (actualText === expected) {
+                            addResult(`✅ "${selector}" correctly translated to "${actualText}"`, 'success', 'Translation');
+                            translatedCount++;
+                        } else {
+                            addResult(`❌ "${selector}" not translated. Expected: "${expected}", Got: "${actualText}"`, 'error', 'Translation');
+                        }
+                    } else {
+                        addResult(`⚠️ Element "${selector}" not found`, 'warning', 'Translation');
+                    }
+                });
+                
+                const translationRate = (translatedCount / totalCount * 100).toFixed(1);
+                addResult(`Translation completion: ${translationRate}% (${translatedCount}/${totalCount})`, 
+                         translationRate > 80 ? 'success' : translationRate > 50 ? 'warning' : 'error', 'Translation');
+                
+            } catch (error) {
+                addResult(`Error testing translation: ${error.message}`, 'error', 'Translation');
+            }
+        }
+
+        function generateReport() {
+            addResult('Generating test report...', 'info', 'Report');
+            
+            const successCount = testResults.filter(r => r.type === 'success').length;
+            const errorCount = testResults.filter(r => r.type === 'error').length;
+            const warningCount = testResults.filter(r => r.type === 'warning').length;
+            const totalTests = successCount + errorCount + warningCount;
+            
+            const successRate = totalTests > 0 ? (successCount / totalTests * 100).toFixed(1) : 0;
+            
+            addResult(`📊 Test Summary: ${successCount} passed, ${errorCount} failed, ${warningCount} warnings`, 'info', 'Report');
+            addResult(`📈 Success Rate: ${successRate}%`, successRate > 80 ? 'success' : 'warning', 'Report');
+            
+            if (successRate > 80) {
+                addResult('🎉 Language dropdown is working correctly!', 'success', 'Report');
+            } else {
+                addResult('⚠️ Language dropdown needs attention', 'warning', 'Report');
+            }
+        }
+
+        function openConsole() {
+            addResult('Opening browser console for detailed logs...', 'info', 'Console');
+            console.log('=== MANDI EAR LANGUAGE DROPDOWN TEST RESULTS ===');
+            console.table(testResults);
+            alert('Check the browser console (F12) for detailed test results and logs.');
+        }
+
+        // Auto-run basic test when iframe loads
+        document.getElementById('app-frame').onload = function() {
+            setTimeout(() => {
+                addResult('Application loaded, running basic checks...', 'info', 'Auto Test');
+                testDropdownOpen();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

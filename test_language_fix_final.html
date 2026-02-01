@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANDI EAR™ - Language Translation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; }
+        .test-button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .test-button:hover { background: #0056b3; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 5px; }
+        .language-buttons { margin: 10px 0; }
+        .language-btn { background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .language-btn:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 MANDI EAR™ Language Translation Test</h1>
+        <p>This test verifies that ALL UI elements are properly translated when language is changed.</p>
+        
+        <div class="test-section">
+            <h3>📋 Test Results</h3>
+            <div id="results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Language Test Controls</h3>
+            <div class="language-buttons">
+                <button class="language-btn" onclick="testLanguage('en', 'English')">Test English</button>
+                <button class="language-btn" onclick="testLanguage('hi', 'Hindi')">Test Hindi</button>
+                <button class="language-btn" onclick="testLanguage('bn', 'Bengali')">Test Bengali</button>
+                <button class="language-btn" onclick="testLanguage('te', 'Telugu')">Test Telugu</button>
+                <button class="language-btn" onclick="testLanguage('ta', 'Tamil')">Test Tamil</button>
+            </div>
+            <button class="test-button" onclick="runComprehensiveTest()">🔍 Run Comprehensive Translation Test</button>
+            <button class="test-button" onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🖥️ Live Application</h3>
+            <iframe id="app-frame" src="http://localhost:8001"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testLanguage(langCode, langName) {
+            addResult(`🌐 Testing ${langName} (${langCode}) translation...`, 'info');
+            
+            try {
+                const frame = document.getElementById('app-frame');
+                const frameWindow = frame.contentWindow;
+                const frameDoc = frame.contentDocument || frameWindow.document;
+                
+                // Wait for frame to load
+                if (!frameDoc || frameDoc.readyState !== 'complete') {
+                    addResult(`⏳ Waiting for application to load...`, 'info');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+                
+                // Check if selectLanguage function exists
+                if (typeof frameWindow.selectLanguage === 'function') {
+                    addResult(`✅ selectLanguage function found`, 'success');
+                    
+                    // Call selectLanguage function
+                    frameWindow.selectLanguage(langCode, langName, '🇮🇳');
+                    addResult(`🔄 Language changed to ${langName}`, 'info');
+                    
+                    // Wait for translation to complete
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Check specific elements for translation
+                    const elementsToCheck = [
+                        { selector: '[data-translate="hero-title"]', name: 'Hero Title' },
+                        { selector: '[data-translate="live-prices"]', name: 'Live Prices' },
+                        { selector: '[data-translate="system-operational"]', name: 'System Status' },
+                        { selector: '[data-translate="languages"]', name: 'Languages Label' },
+                        { selector: '[data-translate="mandis"]', name: 'Mandis Label' },
+                        { selector: '[data-translate="monitoring"]', name: 'Monitoring Label' },
+                        { selector: '[data-translate="powered"]', name: 'Powered Label' },
+                        { selector: '[data-translate="all-mandis"]', name: 'All Mandis' },
+                        { selector: '[data-translate="all-commodities"]', name: 'All Commodities' },
+                        { selector: '[data-translate="grains-cereals"]', name: 'Grains & Cereals' },
+                        { selector: '[data-translate="top-vegetables"]', name: 'Top Vegetables' },
+                        { selector: '[data-translate="cash-crops"]', name: 'Cash Crops' },
+                        { selector: '[data-translate="refresh-prices"]', name: 'Refresh Prices' },
+                        { selector: '[data-translate="api-endpoints"]', name: 'API Endpoints' },
+                        { selector: '[data-translate="interactive-api-testing"]', name: 'Interactive API Testing' },
+                        { selector: '[data-translate="per-quintal"]', name: 'Per Quintal' }
+                    ];
+                    
+                    let translatedCount = 0;
+                    let totalElements = 0;
+                    
+                    for (const element of elementsToCheck) {
+                        const elements = frameDoc.querySelectorAll(element.selector);
+                        if (elements.length > 0) {
+                            totalElements += elements.length;
+                            const text = elements[0].textContent.trim();
+                            if (text && text !== element.name) {
+                                translatedCount++;
+                                addResult(`✅ ${element.name}: "${text}"`, 'success');
+                            } else {
+                                addResult(`❌ ${element.name}: Not translated (still "${text}")`, 'error');
+                            }
+                        } else {
+                            addResult(`⚠️ ${element.name}: Element not found`, 'error');
+                        }
+                    }
+                    
+                    const translationRate = totalElements > 0 ? (translatedCount / totalElements * 100).toFixed(1) : 0;
+                    addResult(`📊 Translation Rate: ${translatedCount}/${totalElements} (${translationRate}%)`, 
+                             translationRate > 80 ? 'success' : 'error');
+                    
+                } else {
+                    addResult(`❌ selectLanguage function not found`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error testing ${langName}: ${error.message}`, 'error');
+            }
+        }
+
+        async function runComprehensiveTest() {
+            addResult(`🚀 Starting comprehensive translation test...`, 'info');
+            clearResults();
+            
+            const languages = [
+                { code: 'en', name: 'English' },
+                { code: 'hi', name: 'Hindi' },
+                { code: 'bn', name: 'Bengali' },
+                { code: 'te', name: 'Telugu' },
+                { code: 'ta', name: 'Tamil' }
+            ];
+            
+            for (const lang of languages) {
+                await testLanguage(lang.code, lang.name);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait between tests
+            }
+            
+            addResult(`🏁 Comprehensive test completed!`, 'success');
+        }
+
+        // Auto-load the application
+        window.onload = function() {
+            addResult(`🌐 MANDI EAR™ Language Translation Test Started`, 'info');
+            addResult(`📱 Application loaded in iframe`, 'success');
+            addResult(`💡 Click language buttons above to test translation`, 'info');
+        };
+    </script>
+</body>
+</html>

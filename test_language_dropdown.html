@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Language Dropdown</title>
+</head>
+<body>
+    <h1>Testing MANDI EAR Language Dropdown</h1>
+    <p>Open browser console and navigate to <a href="http://localhost:8001" target="_blank">http://localhost:8001</a></p>
+    <p>Check if:</p>
+    <ul>
+        <li>Page loads completely without JavaScript errors</li>
+        <li>Language dropdown appears in top right</li>
+        <li>Clicking language dropdown shows options</li>
+        <li>Selecting different languages changes the interface</li>
+        <li>All tab functionality works</li>
+    </ul>
+    
+    <script>
+        // Test script to check if the main page loads without errors
+        fetch('http://localhost:8001/')
+            .then(response => response.text())
+            .then(html => {
+                console.log('✅ Main page loads successfully');
+                
+                // Check for JavaScript syntax errors by looking for common error patterns
+                if (html.includes("couldn\\'t") || html.includes("you\\'re")) {
+                    console.error('❌ Found unescaped apostrophes in JavaScript');
+                } else {
+                    console.log('✅ No unescaped apostrophes found');
+                }
+                
+                // Check for essential elements
+                if (html.includes('toggleLanguageDropdown') && 
+                    html.includes('selectLanguage') && 
+                    html.includes('language-options')) {
+                    console.log('✅ Language dropdown functions found');
+                } else {
+                    console.error('❌ Language dropdown functions missing');
+                }
+                
+                if (html.includes('getTranslation') && 
+                    html.includes('updateUILanguage')) {
+                    console.log('✅ Translation functions found');
+                } else {
+                    console.error('❌ Translation functions missing');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading main page:', error);
+            });
+    </script>
+</body>
+</html>
